@@ -3,6 +3,7 @@ package org.community.service.user;
 import org.community.common.user.UserResponseMessage;
 import org.community.dto.user.request.UserLoginRequest;
 import org.community.dto.user.request.UserSignupRequest;
+import org.community.dto.user.request.UserUpdateRequest;
 import org.community.dto.user.response.ApiResponse;
 import org.community.entity.user.UserEntity;
 import lombok.RequiredArgsConstructor;
@@ -55,4 +56,9 @@ public class UserService {
         // TODO : JWT TOKEN
         return ApiResponse.response(UserResponseMessage.LOGIN_SUCCESS, "accesstoken, refreshtoken");
     }
+
+    public ResponseEntity<ApiResponse> updateUser(UserUpdateRequest userUpdateRequestDto) {
+
+    }
+
 }
