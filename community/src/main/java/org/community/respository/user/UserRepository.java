@@ -1,10 +1,9 @@
-package respository.user;
+package org.community.respository.user;
 
-import entity.user.UserEntity;
+import org.community.entity.user.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository

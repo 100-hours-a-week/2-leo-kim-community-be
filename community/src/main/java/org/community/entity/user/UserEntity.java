@@ -1,4 +1,4 @@
-package entity.user;
+package org.community.entity.user;
 
 import jakarta.persistence.*;
 import lombok.Builder;

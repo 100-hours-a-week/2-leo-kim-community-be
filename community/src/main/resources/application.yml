@@ -9,12 +9,19 @@ spring:
     password: ""
 
   jpa:
-    database-platform: org.hibernate.dialect.MySQL8Dialect  # MySQL 8.x 버전
+    database-platform: org.hibernate.dialect.MySQLDialect  # MySQL 8.x 버전
     hibernate:
       ddl-auto: update
     show-sql: true  # 실행되는 SQL 로그 출력
     properties:
       hibernate.format_sql: true  # SQL을 보기 좋게 정렬
+    open-in-view: false  # 성능 최적화를 위해 비활성화
 
 server:
   port: 8080  # 기본 포트
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

@@ -1,6 +1,6 @@
-package dto.user.request;
+package org.community.dto.user.request;
 
-import entity.user.UserEntity;
+import org.community.entity.user.UserEntity;
 import lombok.*;
 
 @Getter

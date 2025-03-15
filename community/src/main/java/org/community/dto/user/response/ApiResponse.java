@@ -1,10 +1,8 @@
-package dto.user.response;
+package org.community.dto.user.response;
 
-import common.user.UserResponseMessage;
+import org.community.common.user.UserResponseMessage;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 
 @Getter

@@ -1,4 +1,4 @@
-package common.user;
+package org.community.common.user;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,8 @@ public enum UserResponseMessage {
 
     // 로그인 관련
     LOGIN_SUCCESS(200, "LOGIN_SUCCESS"),
-    INVALID_EMAIL_OR_PASSWORD(400, "INVALID_EMAIL_OR_PASSWORD"), // 로그인 실패
+    INVALID_EMAIL(400, "INVALID_EMAIL"), // 로그인 실패
+    INVALID_PASSWORD(400, "INVALID_PASSWORD"),
 
     // 회원 정보 수정 관련
     UPDATE_SUCCESS(204, "UPDATE_SUCCESS"),
