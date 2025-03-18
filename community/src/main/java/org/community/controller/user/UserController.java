@@ -1,10 +1,13 @@
 package org.community.controller.user;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.community.dto.user.request.UserLoginRequest;
+import org.community.dto.user.request.UserPasswordRequest;
 import org.community.dto.user.request.UserSignupRequest;
 import org.community.dto.user.request.UserUpdateRequest;
-import org.community.dto.user.response.ApiResponse;
+import org.community.dto.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.community.global.CustomJwtException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.community.service.user.UserService;
@@ -27,8 +30,18 @@ public class UserController {
     }
 
     // TODO : jwt util을 만들어 사용자 정보 인식 및 유효성 검증
-    @PutMapping("/{userId}")
-    public ResponseEntity<ApiResponse> updateUser(@RequestBody UserUpdateRequest userUpdateRequestDto){
-        return userService.updateUser( userUpdateRequestDto);
+    @PutMapping
+    public ResponseEntity<ApiResponse> updateUser(HttpServletRequest request, @RequestBody UserUpdateRequest userUpdateRequestDto){
+        return userService.updateUser(request, userUpdateRequestDto);
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<ApiResponse> updateUserPassword(HttpServletRequest request, @RequestBody UserPasswordRequest userPasswordRequestDto){
+        return userService.updateUserPassword(request,userPasswordRequestDto);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<ApiResponse> deleteUser(HttpServletRequest request){
+        return userService.deleteUser(request);
     }
 }

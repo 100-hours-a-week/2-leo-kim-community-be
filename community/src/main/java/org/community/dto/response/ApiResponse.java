@@ -1,8 +1,9 @@
-package org.community.dto.user.response;
+package org.community.dto.response;
 
 import org.community.common.user.UserResponseMessage;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 
 @Getter
@@ -35,6 +36,20 @@ public class ApiResponse {
     public static ResponseEntity<ApiResponse> response(UserResponseMessage userResponseMessage, Object data) {
         return ResponseEntity
                 .status(userResponseMessage.getStatusCode())
+                .body(of(userResponseMessage, data));
+    }
+
+    public static ResponseEntity<ApiResponse> responseWithHeader(UserResponseMessage userResponseMessage, HttpHeaders headers) {
+        return ResponseEntity
+                .status(userResponseMessage.getStatusCode())
+                .headers(headers)
+                .body(of(userResponseMessage));
+    }
+
+    public static ResponseEntity<ApiResponse> responseWithHeader(UserResponseMessage userResponseMessage, Object data, HttpHeaders headers) {
+        return ResponseEntity
+                .status(userResponseMessage.getStatusCode())
+                .headers(headers)
                 .body(of(userResponseMessage, data));
     }
 }

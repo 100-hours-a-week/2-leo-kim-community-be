@@ -7,7 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserUpdateRequest {
-    private String nickname;
-    private String profileImage;
+public class UserPasswordRequest {
+    public String newPassword;
 }

@@ -15,11 +15,13 @@ dependencies {
     // Spring Boot 기본 설정
     implementation 'org.springframework.boot:spring-boot-starter-web'  // 웹 서버
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'  // JPA 설정
-    implementation 'org.springframework.boot:spring-boot-starter-validation'  // 유효성 검사
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.security:spring-security-config'
 
-//    runtimeOnly 'com.h2database:h2'  // 개발용 (MySQL/PostgreSQL을 사용하려면 변경)
-    runtimeOnly 'com.mysql:mysql-connector-j'  // 🔥 이 부분 추가!
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
     // Lombok (코드 간소화)
     compileOnly 'org.projectlombok:lombok'
