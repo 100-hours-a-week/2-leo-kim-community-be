@@ -19,8 +19,8 @@ public class GlobalExceptionHandler {
         return ApiResponse.response(responseMessage);
     }
 
-    @ExceptionHandler(CustomJwtException.class)
-    public ResponseEntity<ApiResponse> handleCustomJwtException(CustomJwtException e) {
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ApiResponse> handleCustomJwtException(CustomException e) {
         return ApiResponse.response(e.getResponseMessage());
     }
 }

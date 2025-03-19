@@ -4,10 +4,10 @@ import lombok.Getter;
 import org.community.common.user.UserResponseMessage;
 
 @Getter
-public class CustomJwtException extends RuntimeException {
+public class CustomException extends RuntimeException {
     private final UserResponseMessage responseMessage;
 
-    public CustomJwtException(UserResponseMessage responseMessage) {
+    public CustomException(UserResponseMessage responseMessage) {
         super(responseMessage.getMessage());
         this.responseMessage = responseMessage;
     }

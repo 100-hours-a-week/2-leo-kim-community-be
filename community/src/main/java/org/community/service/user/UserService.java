@@ -4,14 +4,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.community.common.user.UserResponseMessage;
-import org.community.dto.user.request.UserLoginRequest;
-import org.community.dto.user.request.UserPasswordRequest;
-import org.community.dto.user.request.UserSignupRequest;
-import org.community.dto.user.request.UserUpdateRequest;
+import org.community.dto.request.user.UserLoginRequest;
+import org.community.dto.request.user.UserPasswordRequest;
+import org.community.dto.request.user.UserSignupRequest;
+import org.community.dto.request.user.UserUpdateRequest;
 import org.community.dto.response.ApiResponse;
 import org.community.entity.user.UserEntity;
 import lombok.RequiredArgsConstructor;
-import org.community.global.CustomJwtException;
+import org.community.global.CustomException;
 import org.community.util.jwtutil.JwtUtil;
 import org.community.util.jwtutil.TokenInfo;
 import org.springframework.http.HttpHeaders;
@@ -20,7 +20,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.community.respository.user.UserRepository;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -80,7 +79,7 @@ public class UserService {
     public ResponseEntity<ApiResponse> updateUser(HttpServletRequest request, UserUpdateRequest userUpdateRequestDto) {
         Long userId = jwtUtil.getUserIdFromJwt(request.getHeader("Authorization"));
         UserEntity user = userRepository.findById(userId).orElseThrow(() ->
-            new CustomJwtException(UserResponseMessage.JWT_INVALID)
+            new CustomException(UserResponseMessage.JWT_INVALID)
         );
         user.setNickname(userUpdateRequestDto.getNickname());
         user.setProfilePic(userUpdateRequestDto.getProfileImage());
@@ -91,7 +90,7 @@ public class UserService {
     public ResponseEntity<ApiResponse> updateUserPassword(HttpServletRequest request, UserPasswordRequest userPasswordRequestDto) {
         Long userId = jwtUtil.getUserIdFromJwt(request.getHeader("Authorization"));
         UserEntity user = userRepository.findById(userId).orElseThrow(() ->
-                new CustomJwtException(UserResponseMessage.JWT_INVALID)
+                new CustomException(UserResponseMessage.JWT_INVALID)
         );
         String encodedPassword = bCryptPasswordEncoder.encode(userPasswordRequestDto.getNewPassword());
         user.setPassword(encodedPassword);

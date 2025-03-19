@@ -1,4 +1,4 @@
-package org.community.dto.user.request;
+package org.community.dto.request.user;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

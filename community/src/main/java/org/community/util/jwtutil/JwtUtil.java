@@ -6,7 +6,7 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
 import lombok.extern.slf4j.Slf4j;
 import org.community.common.user.UserResponseMessage;
-import org.community.global.CustomJwtException;
+import org.community.global.CustomException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -109,13 +109,13 @@ public class JwtUtil {
             getClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
-            throw new CustomJwtException(UserResponseMessage.JWT_EXPIRED);
+            throw new CustomException(UserResponseMessage.JWT_EXPIRED);
         } catch (MalformedJwtException e) {
-            throw new CustomJwtException(UserResponseMessage.JWT_INVALID);
+            throw new CustomException(UserResponseMessage.JWT_INVALID);
         } catch (UnsupportedJwtException e) {
-            throw new CustomJwtException(UserResponseMessage.JWT_UNSUPPORTED);
+            throw new CustomException(UserResponseMessage.JWT_UNSUPPORTED);
         } catch (IllegalArgumentException | SecurityException e) {
-            throw new CustomJwtException(UserResponseMessage.JWT_VERIFICATION_FAILED);
+            throw new CustomException(UserResponseMessage.JWT_VERIFICATION_FAILED);
         }
     }
 

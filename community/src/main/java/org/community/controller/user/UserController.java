@@ -1,13 +1,12 @@
 package org.community.controller.user;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.community.dto.user.request.UserLoginRequest;
-import org.community.dto.user.request.UserPasswordRequest;
-import org.community.dto.user.request.UserSignupRequest;
-import org.community.dto.user.request.UserUpdateRequest;
+import org.community.dto.request.user.UserLoginRequest;
+import org.community.dto.request.user.UserPasswordRequest;
+import org.community.dto.request.user.UserSignupRequest;
+import org.community.dto.request.user.UserUpdateRequest;
 import org.community.dto.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.community.global.CustomJwtException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.community.service.user.UserService;

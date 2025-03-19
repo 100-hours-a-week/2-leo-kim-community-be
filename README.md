@@ -18,9 +18,32 @@
 
     추가사항 : refreshToken을 저장하는 Redis의 사용에 대한 고민, refreshToken으로 accesstoken재발급에 대한 고민
 
-Update에서 Transactional FetchTyper, Propagation에 대한 설정에 대한 고민
+Update에서 Transactional FetchType, Propagation에 대한 설정에 대한 고민
 https://velog.io/@nuh__d/JPA-FetchType.LAZY-%EC%9C%BC%EB%A1%9C-%EC%9D%B8%ED%95%9C-%EB%B0%9C%EC%83%9D%ED%96%88%EB%8D%98-%EB%AC%B8%EC%A0%9C%EC%A0%90
 
 accessToken에서 userId를 가져올 때 Bearer를 빼지 않고 추출하면 Invalid Token을 던지게 된다.
+
+@Transactional을 붙여서 Fetchtype-lazy로 인한 문제를 해결하였다. -> createComment
+UserEntity의 getLikedPosts() 메서드는 @OneToMany(fetch = FetchType.LAZY) 설정이 되어 있어 처음에는 프록시 객체로 로드된다.
+하지만 toString(), .size() 등의 메서드를 호출하여 실제 데이터를 조회하려고 하면 LazyInitializationException이 발생한다.
+이는 해당 엔티티가 트랜잭션 내에서 조회되지 않았거나, 트랜잭션이 종료된 후 데이터를 조회하려고 시도하기 때문이다.
+이를 해결하기 위해 @Transactional을 사용하여 트랜잭션(Persistence Context)을 유지하면, EntityManager가 열려 있어 Lazy Loading이 정상적으로 작동한다.
+
+UserEntity와 PostEntity의 상호 @Tostring, log으로 인한 stackoverflow가 생겼다.
+
+Entity에 implements Serializable가 권장된다고 JPA 문서에 명시되어있다.
+하지만 최근엔 굳이 사용하지 않아도 된다고한다.
+
+1. DTO, VO의 사용:
+   요즘 구현을 할 때 DTO, VO를 사용하지 않고, Entity 자체를 보내는 경우는 거의 없다.
+2. 직렬화 대안 기술:
+   Spring boot와 MSA 환경에서는 JSON, XML 등의 직렬화 대안 기술을 활용하여 데이터를 주고 받는 것이 일반적이다.
+   JSON을 사용하는 경우 Jackson 라이브러리가 자동으로 객체를 JSON으로 변환하고 역직렬화한다. 이 경우 클래스 버전과 환경의 일치성을 걱정할 필요가 없을 수 있다.
+3. 클래스 로딩 및 Classpath 관리:
+   Spring boot와 MSA 환경은 클래스 로딩과 Classpath 관리를 편리하게 제공한다.
+   필요한 클래스들을 각 마이크로서비스의 패키지 구조에 잘 배치하고, 의존성 관리를 해주면, 클래스 버전 및 환경의 불일치 문제를 최소화할 수 있다.
+4. 마이크로서비스 아키텍처의 장점:
+   MSA 환경에서는 각 서비스가 독립적으로 배포되고 실행되므로, 클래스나 환경의 변경이 각 서비스에 미치는 영향이 제한적일 수 있다.
+   이로 인해 클래스나 환경의 변화로 인한 문제가 다른 서비스로 전파되는 것을 최소화할 수 있다.
 
 고민사항 : ~~이미지 저장을 MongoDB를 이용할 것인가,~~ 아니면 그냥 디렉토리에 저장할 것인가.

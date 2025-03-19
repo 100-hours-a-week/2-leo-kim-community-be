@@ -1,16 +1,18 @@
 package org.community.entity.user;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.community.entity.like.LikedUserEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
+@ToString
 public class UserEntity {
 
     @Id
@@ -39,41 +41,6 @@ public class UserEntity {
         this.profilePic = profilePic;
     }
 
-    /*
-    Builder 클래스를 만드는 방식
-    static public class Builder {
-        private Long id;
-        private String email;
-        private String password;
-
-        public Builder() {
-        }
-
-        public Builder(User user) {
-            this.id = user.id;
-            this.email = user.email;
-            this.password = user.password;
-        }
-
-        public Builder id(Long id) {
-            this.id = id;
-            return this;
-        }
-
-        public Builder email(String email) {
-            this.email = email;
-            return this;
-        }
-
-        public Builder password(String password) {
-            this.password = password;
-            return this;
-        }
-
-        public User build() {
-            return new User(id, email, password);
-        }
-    }
-    */
-
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LikedUserEntity> likedPosts = new ArrayList<>();
 }

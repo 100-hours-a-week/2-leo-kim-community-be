@@ -1,8 +1,7 @@
-package org.community.dto.user.request;
+package org.community.dto.request.user;
 
 import org.community.entity.user.UserEntity;
 import lombok.*;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Getter
 @Setter
