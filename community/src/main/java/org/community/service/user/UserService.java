@@ -35,11 +35,15 @@ public class UserService {
 
     public ResponseEntity<ApiResponse> signup(UserSignupRequest userSignupDto) {
         Optional<UserEntity> findUserByEmail = userRepository.findByEmail(userSignupDto.getEmail());
+        Optional<UserEntity> findUserByNickname = userRepository.findByNickname(userSignupDto.getNickname());
 
         // 이메일 중복 체크
         // 이메일, 비밀번호 유효성 검사는 FE에서 맡아서 관리하는게 성능적으로 좋을것같습니다.
         if(findUserByEmail.isPresent())
             return ApiResponse.response(UserResponseMessage.DUPLICATE_EMAIL);
+
+        if(findUserByNickname.isPresent())
+            return ApiResponse.response(UserResponseMessage.DUPLICATE_NICKNAME);
 
         // 회원가입 db 저장
         userSignupDto.setPassword(bCryptPasswordEncoder.encode(userSignupDto.getPassword()));
