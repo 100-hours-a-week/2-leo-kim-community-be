@@ -2,9 +2,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	const createButton = document.getElementById("postButton");
 	const header = document.getElementById("headerContents");
 	const loginUser = JSON.parse(sessionStorage.getItem("loginUser"));
-	if (!loginUser) {
-		document.location.href = "Log in.html";
-	}
 
 	const profilePic = document.createElement("img");
 	profilePic.id = "profilePic";

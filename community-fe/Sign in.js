@@ -121,10 +121,8 @@ document.addEventListener("DOMContentLoaded", () => {
 		console.log(response.message);
 		if (response.message === "DUPLICATE_EMAIL") {
 			emailHelper.innerText = "*중복된 이메일 입니다.";
-			updateButtonState();
 		} else if (response.message === "DUPLICATE_NICKNAME") {
 			nicknameHelper.innerText = "*중복된 닉네임 입니다.";
-			updateButtonState();
 		} else {
 			window.location.href = "Log in.html";
 		}
