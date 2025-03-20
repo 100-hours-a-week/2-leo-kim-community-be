@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="kr">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<link rel="stylesheet" type="text/css" href="edit profile.css" />
+		<!-- 아래 "프로젝트 이름"을 자기 자신의 이름으로 변경 -->
+		<title>김광현</title>
+	</head>
+	<body class="body">
+		<header class="header" id="header">
+			<div class="headerContents" id="headerContents">
+				<div></div>
+				<div>아무 말 대잔치</div>
+			</div>
+		</header>
+		<div class="loginForm">
+			<div class="loginTitle">회원가입</div>
+			<div class="profilePic">
+				<div class="profilePicTitle">프로필 사진</div>
+				<div class="helper"></div>
+				<div class="profileContainer">
+					<div id="profilePreview"></div>
+					<!-- 업로드된 이미지 미리보기 -->
+				</div>
+				<input
+					type="file"
+					id="profileInput"
+					accept="image/*"
+					style="display: none"
+				/>
+			</div>
+
+			<form class="signInForm">
+				<div>이메일</div>
+				<div class="email" id="email"></div>
+				<div class="helper" id="emailHelper"></div>
+				<div>닉네임</div>
+				<input type="text" id="nickname" />
+				<div class="helper" id="nicknameHelper"></div>
+			</form>
+
+			<button class="confirmButton" id="confirmButton">수정하기</button>
+			<div class="signOut" id="signOut">회원 탈퇴</div>
+		</div>
+
+		<!-- 회원 탈퇴 확인 모달 -->
+		<div id="signOutModal" class="modal">
+			<div class="modal-content">
+				<p>회원 탈퇴하시겠습니까?</p>
+				<div>작성된 게시글과 댓글은 삭제됩니다.</div>
+				<div class="modalButtons">
+					<button id="cancelSignOut">취소</button>
+					<button id="confirmSignOut">확인</button>
+				</div>
+			</div>
+		</div>
+
+		<div id="tost_message">수정 완료</div>
+
+		<script src="edit profile.js"></script>
+		<script src="profileMenu.js"></script>
+	</body>
+</html>

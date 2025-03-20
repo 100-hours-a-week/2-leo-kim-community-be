@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<link rel="stylesheet" type="text/css" href="make post.css" />
+	</head>
+	<body>
+		<header class="header" id="header">
+			<div class="headerContents" id="headerContents">
+				<div>
+					<img id="backward" src="./backward.svg" />
+				</div>
+				<div>아무 말 대잔치</div>
+			</div>
+		</header>
+		<div class="pageTitle">게시글 작성</div>
+		<div class="title">제목*</div>
+		<input
+			type="text"
+			placeholder="제목을 입력해주세요.(최대 26글자)"
+			class="titleInput"
+			id="titleInput"
+		/>
+		<div class="content">내용*</div>
+
+		<textarea
+			placeholder="내용을 입력해주세요."
+			class="contentInput"
+			id="contentInput"
+		></textarea>
+
+		<div class="helper" id="helper"></div>
+
+		<div class="image">이미지</div>
+
+		<form class="inputImg" method="post" enctype="multipart/form-data">
+			<div class="showImage" id="showImage"></div>
+			<input type="file" accept="image/*" />
+		</form>
+
+		<button class="completeButton" id="completeButton">완료</button>
+
+		<script src="make post.js"></script>
+	</body>
+</html>

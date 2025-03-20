@@ -1,0 +1,119 @@
+body {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.header {
+	width: 100%;
+	height: 30px;
+	display: flex;
+	border-bottom: solid;
+	padding: 20px;
+	align-items: center;
+	justify-content: center;
+	font-size: 25px;
+}
+
+.header > div {
+	width: 70%;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-around;
+}
+
+#backward {
+	width: 30px;
+}
+
+.loginTitle {
+	align-self: center;
+	justify-self: center;
+	font-size: 30px;
+	font-weight: bold;
+	margin-top: 100px;
+}
+
+.profilePic {
+	display: flex;
+	flex-direction: column;
+	width: 400px;
+	height: 206px;
+	align-items: center;
+}
+
+.profileContainer {
+	position: relative;
+	width: 150px;
+	height: 150px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.profilePicAdd {
+	width: 100%;
+	height: 100%;
+}
+
+#profilePreview {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	overflow: hidden;
+	display: none; /* 기본적으로 숨김 */
+}
+
+.profileImage {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: 50%;
+}
+
+.profilePicAdd {
+	width: 150px;
+	align-self: center;
+	bottom: 0px;
+}
+
+.signInForm {
+	display: flex;
+	flex-direction: column;
+	width: 392px;
+	height: auto;
+}
+
+.helper {
+	color: red;
+}
+
+.signInForm input {
+	width: 100%;
+	height: 25px;
+}
+
+.signInButton {
+	display: flex;
+	width: 380px;
+	height: 30px;
+	align-self: center;
+	justify-self: center;
+	justify-content: center;
+	align-items: center;
+	margin-top: 30px;
+	background-color: #aca0eb;
+}
+
+.logIn {
+	display: flex;
+	align-self: center;
+	justify-self: center;
+	margin-top: 30px;
+}
+
+.logIn:hover {
+	cursor: pointer;
+}

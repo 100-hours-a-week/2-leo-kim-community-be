@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>post</title>
+
+		<link rel="stylesheet" type="text/css" href="post.css" />
+	</head>
+	<body>
+		<header class="header">
+			<div class="headerContents" id="headerContents">
+				<img src="backward.svg" alt="뒤로가기" id="backward" />
+				<div>아무 말 대잔치</div>
+				<!-- TODO profile pic 추가 -->
+			</div>
+		</header>
+		<div class="title" id="title">제목1</div>
+		<div class="postHeader">
+			<div class="authorInfo">
+				<div class="authorProfile" id="authorProfile"></div>
+				<div class="author" id="author">작성자</div>
+				<div class="date" id="date">날짜</div>
+			</div>
+			<div class="buttons"></div>
+		</div>
+
+		<img class="picture" id="picture"></img>
+		<div class="contents" id="contents"></div>
+		<div class="postInfo">
+			<div class="likes" id="likes"></div>
+			<div class="views" id="views"></div>
+			<div class="commentNums" id="commentNums"></div>
+		</div>
+		<div class="addComment">
+			<textarea
+				class="comment"
+				placeholder="댓글을 남겨주세요!"
+				id="commentContent"
+			></textarea>
+			<div class="commentBtn" >
+				<button id="commentBtn">댓글 등록</button>
+			</div>
+		</div>
+
+		<div class="comments" id="comments"></div>
+
+		<!-- 모달 -->
+<div id="deleteModalComment" class="modal">
+    <div class="modal-content">
+        <p class="modal-title">댓글을 삭제하시겠습니까?</p>
+        <p class="modal-text">삭제한 내용은 복구할 수 없습니다.</p>
+        <div class="modal-buttons">
+            <button id="cancelButton" class="cancel">취소</button>
+            <button id="confirmDeleteButton" class="confirm">확인</button>
+        </div>
+    </div>
+</div>
+
+<div id="deleteModalPost" class="modal">
+    <div class="modal-content">
+        <p class="modal-title">게시글을 삭제하시겠습니까?</p>
+        <p class="modal-text">삭제한 내용은 복구할 수 없습니다.</p>
+        <div class="modal-buttons">
+            <button id="cancelButtonPost" class="cancel">취소</button>
+            <button id="confirmDeleteButtonPost" class="confirm">확인</button>
+        </div>
+    </div>
+</div>
+
+		<script src="post.js"></script>
+	</body>
+</html>

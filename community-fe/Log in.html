@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="kr">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<link rel="stylesheet" type="text/css" href="Log in.css" />
+		<!-- 아래 "프로젝트 이름"을 자기 자신의 이름으로 변경 -->
+		<title>김광현</title>
+	</head>
+	<body class="body">
+		<header class="header" id="header">
+			<div class="headerContents" id="headerContents">
+				<div>아무 말 대잔치</div>
+			</div>
+		</header>
+		<div class="loginForm">
+			<div class="loginTitle">로그인</div>
+			<form class="form">
+				<div class="emailForm">
+					<div class="title">이메일</div>
+					<div class="email">
+						<input
+							type="email"
+							placeholder="이메일을 입력하세요"
+							id="email"
+						/>
+					</div>
+				</div>
+				<div class="passwordForm">
+					<div class="title">비밀번호</div>
+					<div class="password">
+						<input
+							type="password"
+							placeholder="비밀번호를 입력하세요"
+							id="password"
+						/>
+					</div>
+				</div>
+				<div class="helper" id="helper"></div>
+				<br />
+			</form>
+			<button class="loginButton" id="loginButton">로그인</button>
+			<div class="signUp" onclick="location.href='Sign in.html'">
+				회원가입
+			</div>
+		</div>
+
+		<script src="Log in.js"></script>
+	</body>
+</html>

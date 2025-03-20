@@ -1,0 +1,132 @@
+.header {
+	width: 100%;
+	height: 30px;
+	display: flex;
+	border-bottom: solid;
+	padding: 20px;
+	align-items: center;
+	justify-content: center;
+	font-size: 25px;
+}
+
+.headerContents {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-around;
+	width: 70%;
+}
+
+.body {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.intro {
+	display: inline-block;
+	text-align: center;
+	margin-top: 20px;
+}
+
+.posts {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	max-width: 600px;
+	margin: 20px auto;
+}
+
+.post {
+	width: 592px;
+	height: 169px;
+	border: 1px solid #ddd;
+	border-radius: 10px;
+	background-color: #fff;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	padding: 15px;
+}
+
+.postInfo {
+	display: flex;
+	justify-content: space-between;
+}
+
+.postHeader {
+	display: flex;
+	flex-direction: column;
+}
+
+.postData {
+	font-size: 13px;
+	margin: 15px;
+}
+
+.postDate {
+	align-self: center;
+}
+
+.postTitle {
+	font-size: 24px;
+	font-weight: bold;
+	margin: 15px;
+}
+
+.author {
+	display: flex;
+	font-size: 16px;
+	font-weight: bold;
+	align-items: center;
+	padding: 15px;
+}
+
+.line {
+	width: 100%;
+	height: 1px;
+	color: black;
+}
+
+.postButton {
+	display: flex;
+	flex-direction: row-reverse;
+	width: 592px;
+}
+
+#postButton {
+	border-radius: 5px;
+	border-color: #aca0eb;
+	background-color: #aca0eb;
+	color: #fff;
+}
+
+.menuList {
+	position: absolute;
+	top: 60px;
+	right: 180px;
+	background-color: rgb(212, 212, 212);
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	padding: 10px;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	display: none;
+}
+
+.menuListItems {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.menuListItems > div {
+	margin: 5px;
+}
+
+.menuListItems > div:hover {
+	cursor: pointer;
+}
