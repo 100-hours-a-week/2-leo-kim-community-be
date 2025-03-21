@@ -61,6 +61,7 @@ public class CommentService {
         Long postId = comment.getPost().getPostId();
         commentRepository.deleteById(commentId);
         PostEntity post = postRepository.findById(postId).orElseThrow(() -> new CustomException(UserResponseMessage.POST_NOT_FOUND));
+        post.setCommentsCnt(post.getCommentsCnt()-1);
 
         return ApiResponse.response(UserResponseMessage.COMMENT_DELETED);
     }

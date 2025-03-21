@@ -57,3 +57,5 @@ Entity에 implements Serializable가 권장된다고 JPA 문서에 명시되어�
 1. Filter내부에서 로직처리를 한다.(리턴하게끔 한다.)
 2. AuthenticationEntryPoint를 이용한다.
    우선은 Filter내부에서 로직처리를 하고, 프로젝트를 완성하는 방향으로 진행하였다.
+
+TODO : 좋아요 한번 누르는데 쿼리문의 불필요한 호출이 있는거같은데? 다른 API도 마찬가지고? 다 까봐야한다.

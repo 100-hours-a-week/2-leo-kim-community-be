@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.community.entity.post.PostEntity;
+import org.community.entity.user.UserEntity;
 
 import java.util.Date;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.Objects;
 @Getter
 @Setter
 public class PostDetailResponse {
-    private final Long authorUserId;
+    private final User author;
     private final String title;
     private final String contents;
     private final String image;
@@ -26,7 +27,11 @@ public class PostDetailResponse {
     private List<Comment> commentList;
 
     public PostDetailResponse(PostEntity postEntity, Long userId){
-        this.authorUserId = postEntity.getUser().getUserId();
+        UserEntity user = postEntity.getUser();
+        this.author = User.builder()
+                .nickname(user.getNickname())
+                .profileImage(user.getProfilePic())
+                .build();
         this.title = postEntity.getTitle();
         this.contents = postEntity.getContents();
         this.image = postEntity.getImage();
@@ -34,6 +39,6 @@ public class PostDetailResponse {
         this.likes = postEntity.getLikesCnt();
         this.comments = postEntity.getCommentsCnt();
         this.regDate = postEntity.getRegDate();
-        this.isMyPost = authorUserId.equals(userId);
+        this.isMyPost = user.getUserId().equals(userId);
     }
 }

@@ -2,7 +2,7 @@ import CONFIG from "../config.js";
 
 const baseURL = CONFIG.BACKEND_URL + "/users";
 
-export async function signup(request) {
+export const signup = async (request) => {
 	const response = await fetch(baseURL + "/signup", {
 		method: "POST",
 		headers: {
@@ -12,9 +12,9 @@ export async function signup(request) {
 	});
 	const responseData = await response.json();
 	return responseData;
-}
+};
 
-export async function login(request) {
+export const login = async (request) => {
 	const response = await fetch(baseURL, {
 		method: "POST",
 		headers: {
@@ -29,9 +29,9 @@ export async function login(request) {
 	sessionStorage.setItem("accessToken", accessToken);
 	sessionStorage.setItem("refreshToken", refreshToken);
 	return responseData;
-}
+};
 
-export async function getMe() {
+export const getMe = async () => {
 	const accessToken = sessionStorage.getItem("accessToken");
 	const refreshToken = sessionStorage.getItem("refreshToken");
 	const response = await fetch(baseURL, {
@@ -46,6 +46,6 @@ export async function getMe() {
 
 	const responseData = await response.json();
 	return responseData;
-}
+};
 
-export async function getUserById(userId) {}
+export const getUserById = async (userId) => {};

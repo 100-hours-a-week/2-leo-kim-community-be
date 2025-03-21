@@ -20,18 +20,12 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<ApiResponse> getPosts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size){
-        log.info("{} {}", page, size);
         return postService.getPosts(page,size);
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse> createPosts(HttpServletRequest request, @RequestBody PostCreateRequest postCreateRequest){
         return postService.createPosts(request,postCreateRequest);
-    }
-
-    @PostMapping("/{postId}")
-    public ResponseEntity<ApiResponse> viewPost(@PathVariable Long postId){
-        return postService.viewPost(postId);
     }
 
     @GetMapping("/{postId}")

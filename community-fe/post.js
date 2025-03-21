@@ -1,4 +1,22 @@
-document.addEventListener("DOMContentLoaded", () => {
+import { loadProfileMenu } from "./profileMenu.js";
+import { getMe } from "./api/users.js";
+import { getPostDetail } from "./api/posts.js";
+import { toggleLike } from "./api/likes.js";
+import { createComment, updateComment, deleteComment } from "./api/comments.js";
+
+document.addEventListener("DOMContentLoaded", async () => {
+	// JWT 이상하면 로그인
+	const myInfo = await getMe();
+	if (myInfo.message.startsWith("JWT")) {
+		document.location.href = "Log in.html";
+	}
+
+	// 데이터 가져오기
+	const postIdx = localStorage.getItem("selectedPostIdx");
+	const response = await getPostDetail(postIdx);
+	const post = response.data;
+	const commentsList = post.commentList;
+
 	// DOM 요소 가져오기
 	const backward = document.getElementById("backward");
 	const title = document.getElementById("title");
@@ -13,33 +31,37 @@ document.addEventListener("DOMContentLoaded", () => {
 	let commentBtn = document.getElementById("commentBtn");
 	const commentContent = document.getElementById("commentContent");
 	const buttonsContainer = document.querySelector(".buttons");
-	const headerContents = document.getElementById("headerContents");
+	const header = document.getElementById("headerContents");
 	const authorProfile = document.getElementById("authorProfile");
 
-	// 데이터 가져오기
-	const loginUser = JSON.parse(sessionStorage.getItem("loginUser"));
-	const postIdx = localStorage.getItem("selectedPostIdx");
-	const posts = JSON.parse(localStorage.getItem("posts"));
-	const post = posts[postIdx];
+	let postLike = post.likes;
+	let isLiked = post.isLiked;
+	let selectedCommentId = null;
 
-	const profilePic = document.createElement("img");
-	profilePic.id = "profilePic";
-	profilePic.src = loginUser.profile
-		? loginUser.profile
-		: "./profile_img.webp";
-	profilePic.style.width = "30px";
-	profilePic.style.height = "30px";
-	profilePic.style.borderRadius = "50%";
-	headerContents.appendChild(profilePic);
-
-	const buttonsSetup = () => {
-		const modifyButton = document.getElementById("modifyBtn");
-		modifyButton.addEventListener("click", () => {
-			document.location.href = "edit post.html";
-		});
+	// 프로필 사진 업데이트
+	const profileImageUpdate = async () => {
+		const profileImage = myInfo.data.profileImage;
+		const profilePic = document.createElement("img");
+		profilePic.id = "profilePic";
+		profilePic.src = profileImage ? profileImage : "./profile_img.webp";
+		profilePic.style.width = "30px";
+		profilePic.style.height = "30px";
+		profilePic.style.borderRadius = "50%";
+		header.appendChild(profilePic);
 	};
 
-	if (post.author === loginUser.email) {
+	// 프로필 사진 업데이트 후 프로필 메뉴 만드는 비동기처리
+	profileImageUpdate().then(loadProfileMenu);
+
+	// 내 포스트면 수정 삭제버튼 랜더링
+	if (post?.isMyPost) {
+		const buttonsSetup = () => {
+			const modifyButton = document.getElementById("modifyBtn");
+			modifyButton.addEventListener("click", () => {
+				document.location.href = "edit post.html";
+			});
+		};
+
 		buttonsContainer.innerHTML = `<button class="modify" id="modifyBtn">수정</button>
         <button class="delete" id="deleteBtn">삭제</button> 
         `;
@@ -52,59 +74,72 @@ document.addEventListener("DOMContentLoaded", () => {
 	});
 
 	// 게시글 정보 표시
-	console.log(post.profilePic);
-	authorProfile.innerHTML = `<image src=${post.profilePic}>`;
+	// TODO : 프로필 이미지
+	authorProfile.innerHTML = `<image src=${post.author.profileImage}>`;
 	authorProfile.style.marginRight = "10px";
 	title.innerText = post.title;
-	author.innerText = post.nickname;
-	date.innerText = post.date;
+	author.innerText = post.author.nickname;
+	date.innerText = post.regDate;
 	contents.innerText = post.contents;
 	if (post.image) {
+		// TODO : 업로드 이미지
 		picture.src = post.image;
 	}
 
 	// 게시글 정보 렌더링 (조회수, 좋아요, 댓글수)
 	const renderPosts = () => {
-		likes.innerHTML = `<div>${post.likes.length}</div><div>좋아요 수</div>`;
+		likes.innerHTML = `<div>${postLike}</div><div>좋아요 수</div>`;
 		views.innerHTML = `<div>${post.views}</div><div>조회수</div>`;
-		commentNums.innerHTML = `<div>${post.comments.length}</div><div>댓글</div>`;
-	};
-
-	const increaseViews = () => {
-		post.views++;
-		posts[postIdx] = post;
-		localStorage.setItem("posts", JSON.stringify(posts));
+		commentNums.innerHTML = `<div>${post.comments}</div><div>댓글</div>`;
 	};
 
 	// 좋아요 상태 렌더링
 	const renderLikes = () => {
-		const liked = post.likes.some(
-			(likedOne) => likedOne === loginUser.email
-		);
-		likes.style.backgroundColor = liked ? "#ACA0EB" : "#D9D9D9";
+		likes.style.backgroundColor = isLiked ? "#ACA0EB" : "#D9D9D9";
+	};
+
+	// 댓글 HTML 렌더링
+	const renderComments = (commentsList) => {
+		comments.innerHTML = commentsList
+			.map((comment) => {
+				const buttonToAdd = comment.isMyComment
+					? `<div class="buttons">
+                <button class="fixButton" data-index="${comment.id}">수정</button> 
+                <button class="deleteButton" data-index="${comment.id}">삭제</button> 
+            </div>`
+					: "";
+
+				return `
+            <div class="commentLists">
+                <div class="commentsInfo">
+                    ${comment.nickname} ${comment.regDate}
+                    ${buttonToAdd}
+                </div>
+                <div class="commentContent">
+                    ${comment.contents}
+                </div>
+            </div>`;
+			})
+			.join("");
 	};
 
 	// 초기 렌더링
-	increaseViews();
 	renderPosts();
 	renderLikes();
+	renderComments(commentsList);
 
 	// 좋아요 버튼 클릭
-	likes.addEventListener("click", () => {
-		if (likes.style.backgroundColor === "rgb(217, 217, 217)") {
-			post.likes.push(loginUser.email);
-		} else {
-			const index = post.likes.findIndex(
-				(likedOne) => likedOne === loginUser.email
-			);
-			if (index !== -1) {
-				post.likes.splice(index, 1);
-			}
-		}
-		posts[postIdx] = post;
-		localStorage.setItem("posts", JSON.stringify(posts));
-		renderLikes();
-		renderPosts();
+	likes.addEventListener("click", async () => {
+		await toggleLike(postIdx)
+			.then(() => {
+				postLike = isLiked ? postLike - 1 : postLike + 1;
+				isLiked = !isLiked;
+				renderPosts();
+				renderLikes();
+			})
+			.catch((e) => {
+				console.error(e);
+			});
 	});
 
 	// 댓글 입력 시 버튼 색상 변경
@@ -116,154 +151,86 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	// 기본 댓글 추가 핸들러
 	const setupDefaultCommentHandler = (button) => {
-		button.addEventListener("click", () => {
+		button.addEventListener("click", async () => {
 			if (commentContent.value) {
-				const date = new Date();
-				const dateTimeString =
-					date.toDateString() + " " + date.toLocaleTimeString();
-				const addedComment = {
-					author: loginUser.email,
-					authorNickname: loginUser.nickname,
-					date: dateTimeString,
-					content: commentContent.value,
-				};
-				post.comments.push(addedComment);
-				posts[postIdx] = post;
-				localStorage.setItem("posts", JSON.stringify(posts));
-				commentContent.value = "";
-				comments.innerHTML = renderComments(post.comments);
-				renderPosts();
+				await createComment(postIdx, commentContent.value);
+				window.location.reload();
 			}
 		});
-	};
-
-	// 댓글 수정 핸들러
-	const editComment = (index) => {
-		commentContent.value = post.comments[index].content;
-		commentBtn.innerText = "댓글 수정";
-
-		// 기존 이벤트 리스너 제거
-		const newBtn = commentBtn.cloneNode(true);
-		commentBtn.parentNode.replaceChild(newBtn, commentBtn);
-		commentBtn = newBtn;
-
-		// 수정용 이벤트 리스너 추가
-		commentBtn.addEventListener("click", function handleEdit() {
-			if (commentContent.value) {
-				post.comments[index].content = commentContent.value;
-				localStorage.setItem("posts", JSON.stringify(posts));
-				commentContent.value = "";
-
-				// 버튼 초기화
-				commentBtn.innerText = "댓글 등록";
-				const resetBtn = commentBtn.cloneNode(true);
-				commentBtn.parentNode.replaceChild(resetBtn, commentBtn);
-				commentBtn = resetBtn;
-
-				// 기본 댓글 등록 이벤트 다시 설정
-				setupDefaultCommentHandler(commentBtn);
-
-				// UI 업데이트
-				comments.innerHTML = renderComments(post.comments);
-			}
-		});
-	};
-
-	// 댓글 삭제
-	const deleteComment = (index) => {
-		post.comments.splice(index, 1);
-		posts[postIdx] = post;
-		localStorage.setItem("posts", JSON.stringify(posts));
-		comments.innerHTML = renderComments(post.comments);
-		renderPosts();
 	};
 
 	// 초기 댓글 핸들러 설정
 	setupDefaultCommentHandler(commentBtn);
 
-	// 초기 댓글 목록 표시
-	comments.innerHTML = renderComments(post.comments);
+	// ------- 위에 까진 햇음 ------------
 
-	// 댓글 수정/삭제 버튼 이벤트
-	comments.addEventListener("click", (event) => {
-		if (event.target.classList.contains("deleteButton")) {
-			selectedCommentIndex = event.target.dataset.index;
-			deleteModalComment.style.display = "flex";
-		}
-		if (event.target.classList.contains("fixButton")) {
-			editComment(event.target.dataset.index);
-		}
-	});
+	// 댓글 수정
+	const setupEditHandler = (commentId, initialContent) => {
+		// textarea에 기존 댓글 내용 입력
+		commentContent.value = initialContent;
+		commentBtn.innerText = "댓글 수정";
 
-	const deleteButton = document.getElementById("deleteBtn");
-	deleteButton.addEventListener("click", () => {
-		deleteModalPost.style.display = "flex";
-	});
+		// 기존 버튼 이벤트 제거
+		const newBtn = commentBtn.cloneNode(true);
+		commentBtn.parentNode.replaceChild(newBtn, commentBtn);
+		commentBtn = newBtn;
 
-	// 삭제 모달 관련
-	const deleteModalComment = document.getElementById("deleteModalComment");
-	const cancelButton = document.getElementById("cancelButton");
-	const confirmDeleteButton = document.getElementById("confirmDeleteButton");
-	const deleteModalPost = document.getElementById("deleteModalPost");
-	const cancelButtonPost = document.getElementById("cancelButtonPost");
-	const confirmDeleteButtonPost = document.getElementById(
+		// 수정 요청
+		commentBtn.addEventListener("click", async () => {
+			const newContent = commentContent.value;
+			if (!newContent) return;
+
+			try {
+				await updateComment(commentId, newContent); // 🔧 API 요청
+				window.location.reload(); // 또는 댓글만 다시 fetch해서 renderComments()
+			} catch (e) {
+				console.error("댓글 수정 실패:", e);
+				alert("댓글 수정에 실패했습니다.");
+			}
+		});
+	};
+
+	const deleteModalComment = document.getElementById("deleteModalPost");
+	const cancelButton = document.getElementById("cancelButtonPost");
+	const confirmDeleteButton = document.getElementById(
 		"confirmDeleteButtonPost"
 	);
 
-	let selectedCommentIndex = null;
+	// 댓글 삭제
+	comments.addEventListener("click", (event) => {
+		if (event.target.classList.contains("deleteButton")) {
+			selectedCommentId = event.target.dataset.index;
+			deleteModalComment.style.display = "flex";
+		}
 
-	deleteButton.addEventListener("click", () => {
-		deleteModalPost.style;
+		if (event.target.classList.contains("fixButton")) {
+			const commentId = event.target.dataset.index;
+			const commentDiv = event.target.closest(".commentLists");
+			const contentDiv = commentDiv.querySelector(".commentContent");
+			const contentText = contentDiv.innerText;
+
+			setupEditHandler(commentId, contentText);
+		}
 	});
 
+	// 댓글 삭제 모달
 	cancelButton.addEventListener("click", () => {
 		deleteModalComment.style.display = "none";
-		selectedCommentIndex = null;
+		selectedCommentId = null;
 	});
 
-	confirmDeleteButton.addEventListener("click", () => {
-		if (selectedCommentIndex !== null) {
-			deleteComment(selectedCommentIndex);
-			renderPosts();
+	confirmDeleteButton.addEventListener("click", async () => {
+		if (!selectedCommentId) return;
+
+		try {
+			await deleteComment(selectedCommentId); // 🔧 API 요청
+			window.location.reload(); // 또는 댓글만 다시 fetch해서 renderComments()
+		} catch (e) {
+			console.error("댓글 삭제 실패:", e);
+			alert("댓글 삭제에 실패했습니다.");
+		} finally {
+			deleteModalComment.style.display = "none";
+			selectedCommentId = null;
 		}
-		deleteModalComment.style.display = "none";
-	});
-
-	cancelButtonPost.addEventListener("click", () => {
-		deleteModalPost.style.display = "none";
-	});
-
-	confirmDeleteButtonPost.addEventListener("click", () => {
-		posts.splice(postIdx, 1);
-		localStorage.setItem("posts", JSON.stringify(posts));
-		document.location.href = "Posts.html";
 	});
 });
-
-// 댓글 HTML 렌더링
-const renderComments = (comments) => {
-	return comments
-		.map((comment, index) => {
-			const isAuthor =
-				comment.author ===
-				JSON.parse(sessionStorage.getItem("loginUser")).email;
-			const buttonToAdd = isAuthor
-				? `<div class="buttons">
-                <button class="fixButton" data-index="${index}">수정</button> 
-                <button class="deleteButton" data-index="${index}">삭제</button> 
-            </div>`
-				: "";
-
-			return `
-            <div class="commentLists">
-                <div class="commentsInfo">
-                    ${comment.authorNickname} ${comment.date}
-                    ${buttonToAdd}
-                </div>
-                <div class="commentContent">
-                    ${comment.content}
-                </div>
-            </div>`;
-		})
-		.join("");
-};

@@ -76,6 +76,7 @@ public class PostService {
 
         Boolean isLiked = likeService.getIsLiked(request,post);
         responseBody.setIsLiked(isLiked);
+        post.setViews(post.getViews()+1);
         return ApiResponse.response(UserResponseMessage.POST_FETCH_SUCCESS,responseBody);
     }
 
@@ -97,11 +98,5 @@ public class PostService {
     public ResponseEntity<ApiResponse> deletePost(Long postId) {
         postRepository.deleteById(postId);
         return ApiResponse.response(UserResponseMessage.POST_DELETED);
-    }
-
-    public ResponseEntity<ApiResponse> viewPost( Long postId) {
-        PostEntity post = postRepository.findById(postId).orElseThrow(() -> new CustomException(UserResponseMessage.POST_NOT_FOUND));
-        post.setViews(post.getViews()+1);
-        return ApiResponse.response(UserResponseMessage.POST_VIEWED);
     }
 }

@@ -10,15 +10,17 @@ import java.util.Objects;
 
 @Getter
 public class Comment {
-    private final String commentAuthorNickname;
-    private final String commentContents;
-    private final String commentRegDate;
+    private final Long id;
+    private final String nickname;
+    private final String contents;
+    private final String regDate;
     private final Boolean isMyComment;
 
     public Comment(Long userId, CommentEntity commentEntity){
-        this.commentAuthorNickname = commentEntity.getUser().getNickname();
-        this.commentContents = commentEntity.getContents();
-        this.commentRegDate = commentEntity.getCommentRegDate().toString();
+        this.id = commentEntity.getCommentId();
+        this.nickname = commentEntity.getUser().getNickname();
+        this.contents = commentEntity.getContents();
+        this.regDate = commentEntity.getCommentRegDate().toString();
         this.isMyComment = Objects.equals(userId,commentEntity.getUser().getUserId());
     }
 }
