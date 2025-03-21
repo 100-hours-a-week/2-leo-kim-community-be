@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.community.global.CustomException;
 import org.community.util.jwtutil.JwtUtil;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,13 +30,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (jwt != null && jwt.startsWith("Bearer ")) {
             jwt = jwt.substring(7);
-            if (jwtUtil.validateToken(jwt)) {
-                // 🔹 JWT에서 이메일 & 인증 객체 생성
-                Authentication authentication = jwtUtil.getAuthentication(jwt);
+            try {
+                if (jwtUtil.validateToken(jwt)) {
+                    // 🔹 JWT에서 이메일 & 인증 객체 생성
+                    Authentication authentication = jwtUtil.getAuthentication(jwt);
 
-                // 🔹 SecurityContextHolder에 인증 정보 저장
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    // 🔹 SecurityContextHolder에 인증 정보 저장
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
 
+                }
+            }
+            // TODO : AuthenticationEntryPoint를 사용하는 방법 모색
+            catch (CustomException e){
+                // 🔥 직접 JSON 응답 작성
+                response.setStatus(e.getResponseMessage().getStatusCode());
+                response.setContentType("application/json;charset=UTF-8");
+
+                String jsonResponse = String.format(
+                        "{\"message\": \"%s\", \"data\": null}",
+                        e.getResponseMessage().name()
+                );
+
+                response.getWriter().write(jsonResponse);
+                response.getWriter().flush();
+                return; // 필터 체인 종료
             }
         }
 

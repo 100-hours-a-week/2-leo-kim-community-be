@@ -18,6 +18,16 @@ public class UserController {
 
     private final UserService userService;
 
+    @GetMapping("/{userId}")
+    public ResponseEntity<ApiResponse> getUser(@PathVariable Long userId){
+        return userService.getUser(userId);
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse> getMe(HttpServletRequest request){
+        return userService.getMe(request);
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse> signup(@RequestBody UserSignupRequest userSignupDto){
         return userService.signup(userSignupDto);
@@ -28,7 +38,6 @@ public class UserController {
         return userService.login(userLoginRequestDto);
     }
 
-    // TODO : jwt util을 만들어 사용자 정보 인식 및 유효성 검증
     @PutMapping
     public ResponseEntity<ApiResponse> updateUser(HttpServletRequest request, @RequestBody UserUpdateRequest userUpdateRequestDto){
         return userService.updateUser(request, userUpdateRequestDto);

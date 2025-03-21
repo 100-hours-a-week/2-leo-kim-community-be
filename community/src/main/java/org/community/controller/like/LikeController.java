@@ -16,8 +16,8 @@ public class LikeController {
 
     // PostService가 호출할거임 필요 x
 //    @GetMapping("/{postId}/like")
-//    public ResponseEntity<ApiResponse> getLiked(HttpServletRequest request, @PathVariable Long postId){
-//        return likeService.getLiked(request,postId);
+//    public ResponseEntity<ApiResponse> getIsLiked(HttpServletRequest request, @PathVariable Long postId){
+//        return likeService.getIsLiked(request,postId);
 //    }
 
     @PostMapping("/{postId}/like")

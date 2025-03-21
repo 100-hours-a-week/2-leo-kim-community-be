@@ -9,6 +9,7 @@ import org.community.dto.request.user.UserPasswordRequest;
 import org.community.dto.request.user.UserSignupRequest;
 import org.community.dto.request.user.UserUpdateRequest;
 import org.community.dto.response.ApiResponse;
+import org.community.dto.response.user.UserResponse;
 import org.community.entity.user.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.community.global.CustomException;
@@ -27,6 +28,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
@@ -79,32 +81,50 @@ public class UserService {
         return ApiResponse.responseWithHeader(UserResponseMessage.LOGIN_SUCCESS,headers);
     }
 
-    @Transactional
     public ResponseEntity<ApiResponse> updateUser(HttpServletRequest request, UserUpdateRequest userUpdateRequestDto) {
         Long userId = jwtUtil.getUserIdFromJwt(request.getHeader("Authorization"));
         UserEntity user = userRepository.findById(userId).orElseThrow(() ->
-            new CustomException(UserResponseMessage.JWT_INVALID)
+            new CustomException(UserResponseMessage.USER_NOT_FOUND)
         );
         user.setNickname(userUpdateRequestDto.getNickname());
         user.setProfilePic(userUpdateRequestDto.getProfileImage());
         return ApiResponse.response(UserResponseMessage.UPDATE_SUCCESS);
     }
 
-    @Transactional
     public ResponseEntity<ApiResponse> updateUserPassword(HttpServletRequest request, UserPasswordRequest userPasswordRequestDto) {
         Long userId = jwtUtil.getUserIdFromJwt(request.getHeader("Authorization"));
         UserEntity user = userRepository.findById(userId).orElseThrow(() ->
-                new CustomException(UserResponseMessage.JWT_INVALID)
+                new CustomException(UserResponseMessage.USER_NOT_FOUND)
         );
         String encodedPassword = bCryptPasswordEncoder.encode(userPasswordRequestDto.getNewPassword());
         user.setPassword(encodedPassword);
         return ApiResponse.response(UserResponseMessage.UPDATE_SUCCESS);
     }
 
-    @Transactional
     public ResponseEntity<ApiResponse> deleteUser(HttpServletRequest request) {
         Long userId = jwtUtil.getUserIdFromJwt(request.getHeader("Authorization"));
         userRepository.deleteById(userId);
         return ApiResponse.response(UserResponseMessage.DELETE_SUCCESS);
+    }
+
+    public ResponseEntity<ApiResponse> getUser(Long userId) {
+        UserEntity userInfo = userRepository.findById(userId).orElseThrow(()-> new CustomException(UserResponseMessage.USER_NOT_FOUND));
+        UserResponse responseBody = UserResponse.builder()
+                .nickname(userInfo.getNickname())
+                .profileImage(userInfo.getProfilePic())
+                .build();
+
+        return ApiResponse.response(UserResponseMessage.USER_FETCH_SUCCESS,responseBody);
+    }
+
+    public ResponseEntity<ApiResponse> getMe(HttpServletRequest request) {
+        Long userId = jwtUtil.getUserIdFromJwt(request.getHeader("Authorization"));
+        UserEntity myInfo = userRepository.findById(userId).orElseThrow(()-> new CustomException(UserResponseMessage.USER_NOT_FOUND));
+        UserResponse responseBody = UserResponse.builder()
+                .nickname(myInfo.getNickname())
+                .profileImage(myInfo.getProfilePic())
+                .build();
+
+        return ApiResponse.response(UserResponseMessage.USER_FETCH_SUCCESS, responseBody);
     }
 }

@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.community.common.user.UserResponseMessage;
 import org.community.dto.response.ApiResponse;
-import org.community.dto.response.post.Post;
 import org.community.entity.like.LikedUserEntity;
 import org.community.entity.post.PostEntity;
 import org.community.entity.user.UserEntity;
@@ -30,9 +29,9 @@ public class LikeService {
     private final PostRepository postRepository;
     private final JwtUtil jwtUtil;
 
-    public Boolean getLiked(HttpServletRequest request, PostEntity post) {
+    public Boolean getIsLiked(HttpServletRequest request, PostEntity post) {
         Long userId = jwtUtil.getUserIdFromJwt(request.getHeader("Authorization"));
-        UserEntity user =userRepository.findById(userId).orElseThrow(() -> new CustomException(UserResponseMessage.JWT_INVALID));
+        UserEntity user =userRepository.findById(userId).orElseThrow(() -> new CustomException(UserResponseMessage.USER_NOT_FOUND));
 
         return likedUserRepository.findByUserAndPost(user,post).isPresent();
     }
@@ -40,7 +39,7 @@ public class LikeService {
 
     public ResponseEntity<ApiResponse> toggleLike(HttpServletRequest request, Long postId) {
         Long userId = jwtUtil.getUserIdFromJwt(request.getHeader("Authorization"));
-        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new CustomException(UserResponseMessage.JWT_INVALID));
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new CustomException(UserResponseMessage.USER_NOT_FOUND));
         PostEntity post = postRepository.findById(postId).orElseThrow(() -> new CustomException(UserResponseMessage.POST_NOT_FOUND));
         Optional<LikedUserEntity> likedUserEntity = likedUserRepository.findByUserAndPost(user,post);
 
@@ -51,10 +50,12 @@ public class LikeService {
                     .build();
 
             likedUserRepository.save(newLikedUserEntity);
+            post.setLikesCnt(post.getLikesCnt()+1);
             return ApiResponse.response(UserResponseMessage.LIKE_ADDED);
         }
         else{
             likedUserRepository.delete(likedUserEntity.get());
+            post.setLikesCnt(post.getLikesCnt()-1);
             return ApiResponse.response(UserResponseMessage.LIKE_DELETED);
         }
     }

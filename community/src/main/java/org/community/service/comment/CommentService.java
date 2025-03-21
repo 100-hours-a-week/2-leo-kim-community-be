@@ -8,7 +8,6 @@ import org.community.dto.request.comment.CommentCreateRequest;
 import org.community.dto.request.comment.CommentUpdateRequest;
 import org.community.dto.response.ApiResponse;
 import org.community.dto.response.post.Comment;
-import org.community.dto.response.post.Post;
 import org.community.entity.comment.CommentEntity;
 import org.community.entity.post.PostEntity;
 import org.community.entity.user.UserEntity;
@@ -36,11 +35,12 @@ public class CommentService {
 
     public ResponseEntity<ApiResponse> createComment(HttpServletRequest request, Long postId, CommentCreateRequest commentCreateRequest) {
         Long userId = jwtUtil.getUserIdFromJwt(request.getHeader("Authorization"));
-        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new CustomException(UserResponseMessage.JWT_INVALID));
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new CustomException(UserResponseMessage.USER_NOT_FOUND));
 //        user.getLikedPosts().size(); -> 이와 같이 종료된 Persistence Context내의 프록시 객체를 조회하려고 하면 LazyInitializationException !!!!
         PostEntity post = postRepository.findById(postId).orElseThrow(() -> new CustomException(UserResponseMessage.POST_NOT_FOUND));
         CommentEntity newComment = commentCreateRequest.toEntity(user, post);
         commentRepository.save(newComment);
+        post.setCommentsCnt(post.getCommentsCnt()+1);
         return ApiResponse.response(UserResponseMessage.COMMENT_CREATED);
     }
 
@@ -57,7 +57,11 @@ public class CommentService {
     }
 
     public ResponseEntity<ApiResponse> deleteComment(Long commentId) {
+        CommentEntity comment = commentRepository.findById(commentId).orElseThrow(() -> new CustomException(UserResponseMessage.COMMENT_NOT_FOUND));
+        Long postId = comment.getPost().getPostId();
         commentRepository.deleteById(commentId);
+        PostEntity post = postRepository.findById(postId).orElseThrow(() -> new CustomException(UserResponseMessage.POST_NOT_FOUND));
+
         return ApiResponse.response(UserResponseMessage.COMMENT_DELETED);
     }
 }

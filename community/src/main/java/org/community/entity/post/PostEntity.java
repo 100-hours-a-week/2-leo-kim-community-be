@@ -1,5 +1,6 @@
 package org.community.entity.post;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.community.entity.comment.CommentEntity;
@@ -45,21 +46,20 @@ public class PostEntity {
     @Column(name = "mod_date")
     private Date modDate;
 
+    @Column(name = "views", nullable = false)
     private Integer views;
+
+    @Column(name = "likes_cnt", nullable = false)
+    private Integer likesCnt;
+
+    @Column(name = "comments_cnt", nullable = false)
+    private Integer commentsCnt;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LikedUserEntity> likedUsers = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentEntity> comments = new ArrayList<>();
-
-    public int getLikesCount() {
-        return likedUsers!= null ? likedUsers.size() : 0;
-    }
-
-    public int getCommentsCount(){
-        return comments!= null ? comments.size() : 0;
-    }
 
     @Builder
     public PostEntity(UserEntity user, String title, String contents, String image) {
@@ -68,5 +68,7 @@ public class PostEntity {
         this.contents = contents;
         this.image = image;
         this.views = 0;
+        this.likesCnt = 0;
+        this.commentsCnt = 0;
     }
 }

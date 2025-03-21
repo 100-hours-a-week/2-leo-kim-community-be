@@ -2,12 +2,14 @@ package org.community.dto.response.post;
 
 import lombok.Getter;
 import org.community.entity.post.PostEntity;
+import org.community.entity.user.UserEntity;
 
 import java.util.Date;
 
 @Getter
 public class PostResponse {
     private final Long postId;
+    private final User user;
     private final String title;
     private final String contents;
     private final String image;
@@ -17,13 +19,18 @@ public class PostResponse {
     private final int comments;
 
     public PostResponse(PostEntity post){
+        UserEntity user = post.getUser();
         this.postId = post.getPostId();
+        this.user = User.builder()
+                .nickname(user.getNickname())
+                .profileImage(user.getProfilePic())
+                .build();
         this.title = post.getTitle();
         this.contents = post.getContents();
         this.image = post.getImage();
         this.regDate = post.getRegDate();
         this.views = post.getViews();
-        this.likes = post.getLikesCount();
-        this.comments = post.getCommentsCount();
+        this.likes = post.getLikesCnt();
+        this.comments = post.getCommentsCnt();
     }
 }
