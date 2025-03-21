@@ -35,7 +35,7 @@ public class PostDetailResponse {
         this.title = postEntity.getTitle();
         this.contents = postEntity.getContents();
         this.image = postEntity.getImage();
-        this.views = postEntity.getViews();
+        this.views = postEntity.getViews()+1;
         this.likes = postEntity.getLikesCnt();
         this.comments = postEntity.getCommentsCnt();
         this.regDate = postEntity.getRegDate();
