@@ -1,4 +1,4 @@
-window.addEventListener("DOMContentLoaded", () => {
+export async function loadProfileMenu() {
 	const profilePic = document.getElementById("profilePic");
 
 	// 메뉴 요소 생성
@@ -8,12 +8,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
 	// 메뉴 항목 추가
 	menu.innerHTML = `
-        <ul class="menuListItems" style="list-style:none; padding:0; margin:0;">
-            <div id="modifyInfo">회원정보수정</div>
-            <div id="modifyPw">비밀번호수정</div>
-            <div id="logout">로그아웃</div>
-        </ul>
-    `;
+			<ul class="menuListItems" style="list-style:none; padding:0; margin:0;">
+				<div id="modifyInfo">회원정보수정</div>
+				<div id="modifyPw">비밀번호수정</div>
+				<div id="logout">로그아웃</div>
+			</ul>
+		`;
 
 	document.body.appendChild(menu);
 
@@ -43,4 +43,4 @@ window.addEventListener("DOMContentLoaded", () => {
 			menu.style.display = "none";
 		}
 	});
-});
+}

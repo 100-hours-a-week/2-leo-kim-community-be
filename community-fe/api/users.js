@@ -2,9 +2,6 @@ import CONFIG from "../config.js";
 
 const baseURL = CONFIG.BACKEND_URL + "/users";
 
-export let accessToken = "";
-export let refreshToken = "";
-
 export async function signup(request) {
 	const response = await fetch(baseURL + "/signup", {
 		method: "POST",
@@ -27,7 +24,28 @@ export async function login(request) {
 		credentials: "include",
 	});
 	const responseData = await response.json();
-	accessToken = response.headers.get("Authorization");
-	refreshToken = response.headers.get("refreshToken");
+	const accessToken = response.headers.get("Authorization");
+	const refreshToken = response.headers.get("refreshToken");
+	sessionStorage.setItem("accessToken", accessToken);
+	sessionStorage.setItem("refreshToken", refreshToken);
 	return responseData;
 }
+
+export async function getMe() {
+	const accessToken = sessionStorage.getItem("accessToken");
+	const refreshToken = sessionStorage.getItem("refreshToken");
+	const response = await fetch(baseURL, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: accessToken,
+			refreshToken: refreshToken,
+		},
+		credentials: "include",
+	});
+
+	const responseData = await response.json();
+	return responseData;
+}
+
+export async function getUserById(userId) {}

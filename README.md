@@ -47,3 +47,13 @@ Entity에 implements Serializable가 권장된다고 JPA 문서에 명시되어�
    이로 인해 클래스나 환경의 변화로 인한 문제가 다른 서비스로 전파되는 것을 최소화할 수 있다.
 
 고민사항 : ~~이미지 저장을 MongoDB를 이용할 것인가,~~ 아니면 그냥 디렉토리에 저장할 것인가.
+
+근데 comment가 달려서 comment만 다시 가져와서 리렌더링하는 형식으로하면, 댓글 달린 사이에 그 post author의 정보가 바뀌면 그건 반영이 안되는데? 결국 새로고침으로 다시 가져와야하나?
+
+또, likeList의 size로 like수를 가져오는게아니라 like flag? 를 entity에 만들어놓고 그걸 반환하자 -> likeList를 SELECT하는 쿼리가 불필요하기때문
+
+토큰이 만료되면 만들어둔 ExceptionHandler를 RestControllerAdvice로 설정하여 exception을 던지지 말고 메시지를 리턴하게끔 해놨으나, jwtFilter에 의해 먼저 걸러져서 ExceptionHandler는 무시되고 예외를 그냥 던지는 문제가 있었다. Exception의 stack trace 도중 jwtFilter가 먼저이기 때문. 이를 해결하는 방법이
+
+1. Filter내부에서 로직처리를 한다.(리턴하게끔 한다.)
+2. AuthenticationEntryPoint를 이용한다.
+   우선은 Filter내부에서 로직처리를 하고, 프로젝트를 완성하는 방향으로 진행하였다.
