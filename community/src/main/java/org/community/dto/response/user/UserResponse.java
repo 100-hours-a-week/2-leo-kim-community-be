@@ -7,11 +7,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserResponse {
+    private String email;
     private String nickname;
     private String profileImage;
 
     @Builder
-    UserResponse(String nickname, String profileImage){
+    UserResponse(String email, String nickname, String profileImage){
+        this.email = email;
         this.nickname = nickname;
         this.profileImage = profileImage;
     }

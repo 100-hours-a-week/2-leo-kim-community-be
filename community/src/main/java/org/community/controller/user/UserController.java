@@ -1,16 +1,15 @@
 package org.community.controller.user;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.community.dto.request.user.UserLoginRequest;
-import org.community.dto.request.user.UserPasswordRequest;
-import org.community.dto.request.user.UserSignupRequest;
-import org.community.dto.request.user.UserUpdateRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.community.dto.request.user.*;
 import org.community.dto.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.community.service.user.UserService;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -51,5 +50,11 @@ public class UserController {
     @DeleteMapping
     public ResponseEntity<ApiResponse> deleteUser(HttpServletRequest request){
         return userService.deleteUser(request);
+    }
+
+    @GetMapping("/nickname/{nickname}")
+    public ResponseEntity<ApiResponse> isDuplicateNickname(HttpServletRequest request, @PathVariable String nickname){
+        log.info(nickname);
+        return userService.isDuplicateNickname(request,nickname);
     }
 }

@@ -1,29 +1,46 @@
-document.addEventListener("DOMContentLoaded", () => {
+import { loadProfileMenu } from "./profileMenu.js";
+import { getMe } from "./api/users.js";
+import { createPost } from "./api/posts.js";
+
+document.addEventListener("DOMContentLoaded", async () => {
+	// JWT 이상하면 로그인
+	const myInfo = await getMe();
+	if (myInfo.message.startsWith("JWT")) {
+		document.location.href = "Log in.html";
+	}
+
+	// DOM 요소 가져오기
 	const title = document.getElementById("titleInput");
 	const content = document.getElementById("contentInput");
 	const helper = document.getElementById("helper");
 	const completeButton = document.getElementById("completeButton");
 	const fileInput = document.querySelector("input[type='file']");
 	const showImage = document.getElementById("showImage");
-	const loginUser = JSON.parse(sessionStorage.getItem("loginUser"));
 	const header = document.getElementById("headerContents");
 	const backward = document.getElementById("backward");
 	let uploadedImage = "";
 
-	const profilePic = document.createElement("img");
-	profilePic.id = "profilePic";
-	profilePic.src = loginUser.profile
-		? loginUser.profile
-		: "./profile_img.webp";
-	profilePic.style.width = "30px";
-	profilePic.style.height = "30px";
-	profilePic.style.borderRadius = "50%";
-	header.appendChild(profilePic);
+	// 프로필 사진 업데이트
+	const profileImageUpdate = async () => {
+		const profileImage = myInfo.data.profileImage;
+		const profilePic = document.createElement("img");
+		profilePic.id = "profilePic";
+		profilePic.src = profileImage ? profileImage : "./profile_img.webp";
+		profilePic.style.width = "30px";
+		profilePic.style.height = "30px";
+		profilePic.style.borderRadius = "50%";
+		header.appendChild(profilePic);
+	};
 
+	// 프로필 사진 업데이트 후 프로필 메뉴 만드는 비동기처리
+	profileImageUpdate().then(loadProfileMenu);
+
+	// 제목은 26자까지허용
 	title.addEventListener("input", () => {
 		title.value = title.value.substring(0, 26);
 	});
 
+	// 제목, 내용이 차있으면 제출 버튼활성화
 	title.addEventListener("focusout", () => {
 		completeButton.style.backgroundColor = buttonColor(
 			title.value,
@@ -37,6 +54,8 @@ document.addEventListener("DOMContentLoaded", () => {
 			content.value
 		);
 	});
+
+	// ------ 여기부터 파일 업로드 처리할준비 ------
 
 	// 파일 업로드 처리
 	fileInput.addEventListener("change", function () {
@@ -52,34 +71,16 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 	});
 
-	completeButton.addEventListener("click", () => {
+	completeButton.addEventListener("click", async () => {
 		helper.innerText = validateTitleAndContent(title.value, content.value);
 
 		if (!helper.innerText) {
-			const posts = JSON.parse(localStorage.getItem("posts")) || [];
-			const author = JSON.parse(sessionStorage.getItem("loginUser"));
-			if (!author) {
-				document.location.href = "Log in.html";
-			}
-			const date = new Date();
-			const dateTimeString =
-				date.toDateString() + " " + date.toLocaleTimeString();
-
-			console.log(author);
 			const post = {
 				title: title.value,
-				likes: [],
-				comments: [],
-				views: 0,
-				date: dateTimeString,
 				contents: content.value,
-				nickname: author.nickname,
-				author: author.email,
 				image: uploadedImage,
-				profilePic: author.profile,
 			};
-			posts.push(post);
-			localStorage.setItem("posts", JSON.stringify(posts));
+			await createPost(post).then((res) => console.log(res));
 			document.location.href = "Posts.html";
 		}
 	});

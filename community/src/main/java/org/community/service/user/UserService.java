@@ -4,10 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.community.common.user.UserResponseMessage;
-import org.community.dto.request.user.UserLoginRequest;
-import org.community.dto.request.user.UserPasswordRequest;
-import org.community.dto.request.user.UserSignupRequest;
-import org.community.dto.request.user.UserUpdateRequest;
+import org.community.dto.request.user.*;
 import org.community.dto.response.ApiResponse;
 import org.community.dto.response.user.UserResponse;
 import org.community.entity.user.UserEntity;
@@ -121,10 +118,23 @@ public class UserService {
         Long userId = jwtUtil.getUserIdFromJwt(request.getHeader("Authorization"));
         UserEntity myInfo = userRepository.findById(userId).orElseThrow(()-> new CustomException(UserResponseMessage.USER_NOT_FOUND));
         UserResponse responseBody = UserResponse.builder()
+                .email(myInfo.getEmail())
                 .nickname(myInfo.getNickname())
                 .profileImage(myInfo.getProfilePic())
                 .build();
 
         return ApiResponse.response(UserResponseMessage.USER_FETCH_SUCCESS, responseBody);
+    }
+
+    public ResponseEntity<ApiResponse> isDuplicateNickname(HttpServletRequest request, String nickname){
+        Long userId = jwtUtil.getUserIdFromJwt(request.getHeader("Authorization"));
+        Optional<UserEntity> user = userRepository.findByNickname(nickname);
+        if(user.isEmpty())
+            return ApiResponse.response(UserResponseMessage.NOT_DUPLICATE_NICKNAME);
+
+        if(user.get().getUserId().equals(userId))
+            return ApiResponse.response(UserResponseMessage.NOT_DUPLICATE_NICKNAME);
+
+        return ApiResponse.response(UserResponseMessage.DUPLICATE_NICKNAME);
     }
 }

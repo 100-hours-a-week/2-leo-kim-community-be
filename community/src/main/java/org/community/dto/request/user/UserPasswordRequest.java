@@ -8,5 +8,5 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class UserPasswordRequest {
-    public String newPassword;
+    private String newPassword;
 }

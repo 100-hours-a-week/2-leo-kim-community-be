@@ -1,26 +1,44 @@
-document.addEventListener("DOMContentLoaded", () => {
+import { getMe, isDuplicateNickname, updateUser } from "./api/users.js";
+import { loadProfileMenu } from "./profileMenu.js";
+
+document.addEventListener("DOMContentLoaded", async () => {
+	// JWT 이상하면 로그인
+	const myInfo = await getMe();
+	console.log(myInfo);
+	if (myInfo.message.startsWith("JWT")) {
+		document.location.href = "Log in.html";
+	}
+
+	// 요소 grab
 	const email = document.getElementById("email");
 	const profilePreview = document.getElementById("profilePreview");
 	const nickname = document.getElementById("nickname");
 	const nicknameHelper = document.getElementById("nicknameHelper");
 	const confirmButton = document.getElementById("confirmButton");
-	const signOutButton = document.getElementById("signOut");
-	const signOutModal = document.getElementById("signOutModal");
-	const confirmSignOut = document.getElementById("confirmSignOut");
-	const cancelSignOut = document.getElementById("cancelSignOut");
 	const header = document.getElementById("headerContents");
 	const tostMessage = document.getElementById("tost_message");
 	const profilePicAdd = document.getElementById("profilePicAdd");
 	const profileInput = document.getElementById("profileInput");
 
-	const loginUser = JSON.parse(sessionStorage.getItem("loginUser"));
-	const members = JSON.parse(localStorage.getItem("members"));
-	const posts = JSON.parse(localStorage.getItem("posts"));
+	// 초기 렌더링
+	let uploadedProfileImage = myInfo.data.profileImage;
+	email.innerText = myInfo.data.email;
+	nickname.value = myInfo.data.nickname;
 
-	let uploadedProfileImage = loginUser.profile;
+	// 프로필 사진 업데이트
+	const profileImageUpdate = async () => {
+		const profileImage = myInfo.data.profileImage;
+		const profilePic = document.createElement("img");
+		profilePic.id = "profilePic";
+		profilePic.src = profileImage ? profileImage : "./profile_img.webp";
+		profilePic.style.width = "30px";
+		profilePic.style.height = "30px";
+		profilePic.style.borderRadius = "50%";
+		header.appendChild(profilePic);
+	};
 
-	email.innerText = loginUser.email;
-	nickname.value = loginUser.nickname;
+	// 프로필 사진 업데이트 후 프로필 메뉴 만드는 비동기처리
+	profileImageUpdate().then(loadProfileMenu);
 
 	// ✅ 프로필 미리보기를 업데이트하는 함수
 	const updateProfilePreview = (imageSrc) => {
@@ -50,8 +68,8 @@ document.addEventListener("DOMContentLoaded", () => {
 	};
 
 	// ✅ 초기 로그인 시 프로필 반영
-	if (loginUser.profile) {
-		updateProfilePreview(loginUser.profile);
+	if (uploadedProfileImage) {
+		updateProfilePreview(uploadedProfileImage);
 	}
 
 	// 파일 읽기 후 실행할 함수 (Promise 사용)
@@ -115,8 +133,9 @@ document.addEventListener("DOMContentLoaded", () => {
 		profileInput.click();
 	};
 
-	nickname.addEventListener("focusout", () => {
-		nicknameHelper.innerText = validateNickname(nickname.value, loginUser);
+	// 닉네임 정당성 체크
+	nickname.addEventListener("focusout", async () => {
+		nicknameHelper.innerText = await validateNickname(nickname.value);
 		updateButtonState();
 	});
 
@@ -134,51 +153,21 @@ document.addEventListener("DOMContentLoaded", () => {
 	confirmButton.addEventListener("click", () => {
 		if (confirmButton.disabled) return;
 
-		loginUser.nickname = nickname.value;
-		loginUser.profile = uploadedProfileImage;
-		sessionStorage.setItem("loginUser", JSON.stringify(loginUser));
+		const req = {
+			nickname: nickname.value,
+			profileImage: uploadedProfileImage,
+		};
 
-		for (let i = 0; i < members.length; i++) {
-			const item = members[i];
-			if (item.email === loginUser.email) {
-				item.nickname = nickname.value;
-				item.profile = uploadedProfileImage;
-				members[i] = item;
-				break;
-			}
-		}
-
-		localStorage.setItem("members", JSON.stringify(members));
+		updateUser(req);
 
 		tostMessage.classList.add("active");
 		setTimeout(() => {
 			tostMessage.classList.remove("active");
 		}, 2000);
 	});
-
-	signOutButton.addEventListener("click", () => {
-		signOutModal.style.display = "block";
-	});
-
-	cancelSignOut.addEventListener("click", () => {
-		signOutModal.style.display = "none";
-	});
-
-	confirmSignOut.addEventListener("click", () => {
-		sessionStorage.removeItem("loginUser");
-		const newPosts = posts.filter(
-			(post) => post.author !== loginUser.email
-		);
-		const newMembers = members.filter(
-			(member) => member.email !== loginUser.email
-		);
-		localStorage.setItem("members", JSON.stringify(newMembers));
-		localStorage.setItem("posts", JSON.stringify(newPosts));
-		window.location.href = "Log in.html";
-	});
 });
 
-const validateNickname = (nickname, loginUser) => {
+const validateNickname = async (nickname) => {
 	if (!nickname) {
 		return "*닉네임을 입력해주세요.";
 	}
@@ -191,13 +180,8 @@ const validateNickname = (nickname, loginUser) => {
 		return "*닉네임은 최대 10자까지 작성 가능합니다.";
 	}
 
-	const members = JSON.parse(localStorage.getItem("members")) || [];
-	for (let i = 0; i < members.length; i++) {
-		const item = members[i];
-		if (!item.email) continue;
-		if (loginUser.nickname != nickname && item.nickname === nickname)
-			return "*중복된 닉네임 입니다.";
-	}
+	const res = await isDuplicateNickname(nickname);
+	if (!res.ok) return "*중복된 닉네임입니다.";
 
 	return "";
 };

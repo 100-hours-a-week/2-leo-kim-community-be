@@ -1,6 +1,6 @@
 import { loadProfileMenu } from "./profileMenu.js";
 import { getMe } from "./api/users.js";
-import { getPostDetail } from "./api/posts.js";
+import { getPostDetail, deletePost } from "./api/posts.js";
 import { toggleLike } from "./api/likes.js";
 import { createComment, updateComment, deleteComment } from "./api/comments.js";
 
@@ -12,8 +12,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 	}
 
 	// 데이터 가져오기
-	const postIdx = localStorage.getItem("selectedPostIdx");
-	const response = await getPostDetail(postIdx);
+	const postId = localStorage.getItem("selectedPostIdx");
+	const response = await getPostDetail(postId);
 	const post = response.data;
 	const commentsList = post.commentList;
 
@@ -130,7 +130,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	// 좋아요 버튼 클릭
 	likes.addEventListener("click", async () => {
-		await toggleLike(postIdx)
+		await toggleLike(postId)
 			.then(() => {
 				postLike = isLiked ? postLike - 1 : postLike + 1;
 				isLiked = !isLiked;
@@ -153,7 +153,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	const setupDefaultCommentHandler = (button) => {
 		button.addEventListener("click", async () => {
 			if (commentContent.value) {
-				await createComment(postIdx, commentContent.value);
+				await createComment(postId, commentContent.value);
 				window.location.reload();
 			}
 		});
@@ -190,11 +190,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 		});
 	};
 
+	//게시물 삭제
+	const deleteButtonPost = document.getElementById("deleteBtn");
 	const deleteModalComment = document.getElementById("deleteModalPost");
 	const cancelButton = document.getElementById("cancelButtonPost");
 	const confirmDeleteButton = document.getElementById(
 		"confirmDeleteButtonPost"
 	);
+
+	deleteButtonPost.addEventListener("click", () => {
+		deleteModalComment.style.display = "flex";
+
+		confirmDeleteButton.addEventListener("click", async () => {
+			await deletePost(postId);
+			window.location.href = "Posts.html";
+		});
+	});
 
 	// 댓글 삭제
 	comments.addEventListener("click", (event) => {

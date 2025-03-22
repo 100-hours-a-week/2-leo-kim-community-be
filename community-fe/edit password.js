@@ -1,4 +1,14 @@
-document.addEventListener("DOMContentLoaded", () => {
+import { getMe, updateUserPassword } from "./api/users.js";
+import { loadProfileMenu } from "./profileMenu.js";
+
+document.addEventListener("DOMContentLoaded", async () => {
+	// JWT 이상하면 로그인
+	const myInfo = await getMe();
+	console.log(myInfo);
+	if (myInfo.message.startsWith("JWT")) {
+		document.location.href = "Log in.html";
+	}
+
 	const header = document.getElementById("headerContents");
 	const password = document.getElementById("password");
 	const passwordConfirm = document.getElementById("passwordConfirm");
@@ -12,15 +22,20 @@ document.addEventListener("DOMContentLoaded", () => {
 	const loginUser = JSON.parse(sessionStorage.getItem("loginUser"));
 	const members = JSON.parse(localStorage.getItem("members"));
 
-	const profilePic = document.createElement("img");
-	profilePic.id = "profilePic";
-	profilePic.src = loginUser.profile
-		? loginUser.profile
-		: "./profile_img.webp";
-	profilePic.style.width = "30px";
-	profilePic.style.height = "30px";
-	profilePic.style.borderRadius = "50%";
-	header.appendChild(profilePic);
+	// 프로필 사진 업데이트
+	const profileImageUpdate = async () => {
+		const profileImage = myInfo.data.profileImage;
+		const profilePic = document.createElement("img");
+		profilePic.id = "profilePic";
+		profilePic.src = profileImage ? profileImage : "./profile_img.webp";
+		profilePic.style.width = "30px";
+		profilePic.style.height = "30px";
+		profilePic.style.borderRadius = "50%";
+		header.appendChild(profilePic);
+	};
+
+	// 프로필 사진 업데이트 후 프로필 메뉴 만드는 비동기처리
+	profileImageUpdate().then(loadProfileMenu);
 
 	const updateButtonState = () => {
 		if (
@@ -50,19 +65,12 @@ document.addEventListener("DOMContentLoaded", () => {
 		updateButtonState();
 	});
 
-	modifyButton.addEventListener("click", () => {
+	modifyButton.addEventListener("click", async () => {
 		if (modifyButton.style.disabled) return;
-		loginUser.password = password.value;
-		sessionStorage.setItem("loginUser", JSON.stringify(loginUser));
-		for (let i = 0; i < members.length; i++) {
-			const item = members[i];
-			if (item.email === loginUser.email) {
-				item.password = password.value;
-			}
-			members[i] = item;
-			localStorage.setItem("members", JSON.stringify(members));
-			break;
-		}
+
+		const res = await updateUserPassword(password.value);
+		console.log(res);
+
 		tostMessage.classList.add("active");
 		setTimeout(() => {
 			tostMessage.classList.remove("active");

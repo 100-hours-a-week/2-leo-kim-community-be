@@ -48,4 +48,69 @@ export const getMe = async () => {
 	return responseData;
 };
 
-export const getUserById = async (userId) => {};
+export const updateUser = async (req) => {
+	const accessToken = sessionStorage.getItem("accessToken");
+	const refreshToken = sessionStorage.getItem("refreshToken");
+	const response = await fetch(baseURL, {
+		method: "PUT",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: accessToken,
+			refreshToken: refreshToken,
+		},
+		credentials: "include",
+		body: JSON.stringify(req),
+	});
+	console.log(response);
+	return response;
+};
+
+export const updateUserPassword = async (newPassword) => {
+	const accessToken = sessionStorage.getItem("accessToken");
+	const refreshToken = sessionStorage.getItem("refreshToken");
+	const response = await fetch(baseURL + "/password", {
+		method: "PUT",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: accessToken,
+			refreshToken: refreshToken,
+		},
+		credentials: "include",
+		body: JSON.stringify({ newPassword }),
+	});
+	console.log(response);
+	return response;
+};
+
+export const deleteUser = async () => {
+	const accessToken = sessionStorage.getItem("accessToken");
+	const refreshToken = sessionStorage.getItem("refreshToken");
+	const response = await fetch(baseURL, {
+		method: "DELETE",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: accessToken,
+			refreshToken: refreshToken,
+		},
+		credentials: "include",
+	});
+	console.log(response);
+	return response;
+};
+
+export const isDuplicateNickname = async (nickname) => {
+	const accessToken = sessionStorage.getItem("accessToken");
+	const refreshToken = sessionStorage.getItem("refreshToken");
+	const response = await fetch(`${baseURL}/nickname/${nickname}`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: accessToken,
+			refreshToken: refreshToken,
+		},
+		credentials: "include",
+	});
+	return response;
+};
+
+// export const getUserById = async (userId) => {};
