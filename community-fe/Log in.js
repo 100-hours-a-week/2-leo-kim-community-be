@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		} else if (responseData.message == "INVALID_PASSWORD") {
 			helper.innerText = "비밀번호를 확인해주세요";
 		} else {
+			// const profileImage = responseData.data.profileImage;
 			document.location.href = "Posts.html";
 		}
 	};

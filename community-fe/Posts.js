@@ -1,6 +1,7 @@
 import { getMe } from "./api/users.js";
 import { loadProfileMenu } from "./profileMenu.js";
 import { getPosts } from "./api/posts.js";
+import CONFIG from "./config.js";
 
 let page = 0;
 const size = 5;
@@ -20,9 +21,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 	// 프로필 사진 업데이트
 	const profileImageUpdate = async () => {
 		const profileImage = myInfo.data.profileImage;
+		console.log(profileImage);
 		const profilePic = document.createElement("img");
 		profilePic.id = "profilePic";
-		profilePic.src = profileImage ? profileImage : "./profile_img.webp";
+		profilePic.src = profileImage
+			? CONFIG.BACKEND_ROOT_URL + profileImage
+			: "./profile_img.webp";
 		profilePic.style.width = "30px";
 		profilePic.style.height = "30px";
 		profilePic.style.borderRadius = "50%";

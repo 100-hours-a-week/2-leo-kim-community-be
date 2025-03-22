@@ -5,9 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.community.dto.request.user.*;
 import org.community.dto.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.community.service.file.FileUploadService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.community.service.user.UserService;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
@@ -16,6 +19,7 @@ import org.community.service.user.UserService;
 public class UserController {
 
     private final UserService userService;
+    private final FileUploadService fileUploadService;
 
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse> getUser(@PathVariable Long userId){
@@ -24,12 +28,19 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<ApiResponse> getMe(HttpServletRequest request){
+        log.info("**************{}",System.getProperty("user.dir"));
         return userService.getMe(request);
     }
 
-    @PostMapping("/signup")
-    public ResponseEntity<ApiResponse> signup(@RequestBody UserSignupRequest userSignupDto){
-        return userService.signup(userSignupDto);
+    @PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse> signup(@RequestPart("data") UserSignupRequest request,
+                                              @RequestPart(value = "profileImage", required = false) MultipartFile profileImage){
+
+        String imagePath = null;
+        if (profileImage != null && !profileImage.isEmpty()) {
+            imagePath = fileUploadService.saveProfileImage(profileImage);
+        }
+        return userService.signup(request, imagePath);
     }
 
     @PostMapping

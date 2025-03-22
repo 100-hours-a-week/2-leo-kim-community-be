@@ -31,6 +31,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/api/users/signup").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()// 회원가입, 로그인 인증 없이 허용
+                        .requestMatchers("/upload/**").permitAll()
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);

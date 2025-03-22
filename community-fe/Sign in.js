@@ -46,14 +46,14 @@ document.addEventListener("DOMContentLoaded", () => {
 		if (!profileInput.files.length) return; // 파일이 선택되지 않으면 실행 안 함
 
 		const file = profileInput.files[0];
-		console.log("선택된 파일:", file);
 
 		try {
 			// **파일 로딩 완료 후 실행**
-			uploadedProfileImage = await readFileAsync(file);
+			uploadedProfileImage = file;
+			const uploadedProfileImagePreview = await readFileAsync(file);
 
 			// 미리보기 설정
-			profilePreview.innerHTML = `<img src="${uploadedProfileImage}" width="100" alt="프로필 사진" class="profileImage"/>`;
+			profilePreview.innerHTML = `<img src="${uploadedProfileImagePreview}" width="100" alt="프로필 사진" class="profileImage"/>`;
 			profilePreview.style.display = "block";
 
 			// 기존 클릭 이벤트 제거 후 다시 추가
@@ -115,9 +115,8 @@ document.addEventListener("DOMContentLoaded", () => {
 			email: email.value,
 			password: password.value,
 			nickname: nickname.value,
-			profileImage: uploadedProfileImage,
 		};
-		const response = await signup(JSON.stringify(request));
+		const response = await signup(request, uploadedProfileImage);
 		console.log(response.message);
 		if (response.message === "DUPLICATE_EMAIL") {
 			emailHelper.innerText = "*중복된 이메일 입니다.";

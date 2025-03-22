@@ -32,7 +32,7 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtUtil jwtUtil;
 
-    public ResponseEntity<ApiResponse> signup(UserSignupRequest userSignupDto) {
+    public ResponseEntity<ApiResponse> signup(UserSignupRequest userSignupDto, String imagePath) {
         Optional<UserEntity> findUserByEmail = userRepository.findByEmail(userSignupDto.getEmail());
         Optional<UserEntity> findUserByNickname = userRepository.findByNickname(userSignupDto.getNickname());
 
@@ -46,12 +46,14 @@ public class UserService {
 
         // 회원가입 db 저장
         userSignupDto.setPassword(bCryptPasswordEncoder.encode(userSignupDto.getPassword()));
-        UserEntity savedUser = userRepository.save(userSignupDto.toEntity());
+        UserEntity savedUser = userSignupDto.toEntity();
+        savedUser.setProfilePic(imagePath);
+        userRepository.save(savedUser);
+
         // userId를 Map으로 만들어서 반환
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("userId", savedUser.getUserId());
 
-        // TODO : 패스워드 암호화
         return ApiResponse.response(UserResponseMessage.SIGNUP_SUCCESS, responseData);
     }
 
@@ -74,8 +76,10 @@ public class UserService {
         headers.add("Authorization", "Bearer " + jwt.getAccessToken());
         headers.add("refreshToken", jwt.getRefreshToken());
 
-        // TODO : JWT TOKEN
-        return ApiResponse.responseWithHeader(UserResponseMessage.LOGIN_SUCCESS,headers);
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("profileImage",user.getProfilePic());
+
+        return ApiResponse.responseWithHeader(UserResponseMessage.LOGIN_SUCCESS,responseBody,headers);
     }
 
     public ResponseEntity<ApiResponse> updateUser(HttpServletRequest request, UserUpdateRequest userUpdateRequestDto) {

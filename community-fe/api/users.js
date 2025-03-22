@@ -2,13 +2,23 @@ import CONFIG from "../config.js";
 
 const baseURL = CONFIG.BACKEND_URL + "/users";
 
-export const signup = async (request) => {
+export const signup = async (requestData, profileImage) => {
+	const formData = new FormData();
+
+	// JSON 데이터를 Blob으로 감싸서 전송
+	formData.append(
+		"data",
+		new Blob([JSON.stringify(requestData)], { type: "application/json" })
+	);
+
+	// 이미지 파일도 추가 (없으면 안 보냄)
+	if (profileImage) {
+		formData.append("profileImage", profileImage);
+	}
+
 	const response = await fetch(baseURL + "/signup", {
 		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: request,
+		body: formData,
 	});
 	const responseData = await response.json();
 	return responseData;
@@ -24,10 +34,12 @@ export const login = async (request) => {
 		credentials: "include",
 	});
 	const responseData = await response.json();
+	console.log(responseData);
 	const accessToken = response.headers.get("Authorization");
 	const refreshToken = response.headers.get("refreshToken");
 	sessionStorage.setItem("accessToken", accessToken);
 	sessionStorage.setItem("refreshToken", refreshToken);
+	localStorage.setItem("profileImage", responseData.data.profileImage);
 	return responseData;
 };
 
