@@ -48,9 +48,16 @@ public class UserController {
         return userService.login(userLoginRequestDto);
     }
 
-    @PutMapping
-    public ResponseEntity<ApiResponse> updateUser(HttpServletRequest request, @RequestBody UserUpdateRequest userUpdateRequestDto){
-        return userService.updateUser(request, userUpdateRequestDto);
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse> updateUser(HttpServletRequest request, @RequestPart("data") UserUpdateRequest userUpdateRequestDto, @RequestPart(value = "profileImage", required = false) MultipartFile profileImage){
+
+        String imagePath = null;
+        if (profileImage != null && !profileImage.isEmpty()) {
+            imagePath = fileUploadService.saveProfileImage(profileImage);
+        }
+        log.info("********* imagePath{}", imagePath);
+
+        return userService.updateUser(request,  userUpdateRequestDto, imagePath);
     }
 
     @PutMapping("/password")

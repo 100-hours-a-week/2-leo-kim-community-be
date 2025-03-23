@@ -78,9 +78,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	// 게시글 정보 표시
 	// TODO : 프로필 이미지
-	authorProfile.innerHTML = `<image src=${
+	authorProfile.innerHTML = `<image src=${encodeURI(
 		CONFIG.BACKEND_ROOT_URL + post.author.profileImage
-	} class="authorProfile">`;
+	)} class="authorProfile">`;
 	authorProfile.style.marginRight = "10px";
 	title.innerText = post.title;
 	author.innerText = post.author.nickname;

@@ -95,9 +95,9 @@ const addPostList = (postList) => {
 		</div>
 		<hr class="line"/>
 		<div class="author">
-		<img src=${
+		<img src=${encodeURI(
 			CONFIG.BACKEND_ROOT_URL + item.user.profileImage
-		} class="authorProfile"/>
+		)} class="authorProfile"/>
 		${item.user.nickname}
 		</div>
 	`;

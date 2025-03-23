@@ -1,5 +1,6 @@
 package org.community.service.file;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -7,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class FileUploadService {
     public final String PROFILE_IMAGE_PATH = System.getProperty("user.dir")+"/community/upload/profiles/";
@@ -14,10 +16,11 @@ public class FileUploadService {
 
 
     public String saveProfileImage(MultipartFile file) {
+        log.info(file.getOriginalFilename());
         try {
             String originalFilename = file.getOriginalFilename();
             String uuid = UUID.randomUUID().toString();
-            String savedName = uuid + "_" + originalFilename;
+            String savedName = (uuid + "_" + originalFilename).trim();
 
             File dest = new File(PROFILE_IMAGE_PATH, savedName);
             file.transferTo(dest);

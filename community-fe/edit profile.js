@@ -50,24 +50,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 		// 🔹 프로필 미리보기 영역 업데이트
 		profilePreview.innerHTML = ""; // 기존 내용 제거
 		const imgPreview = document.createElement("img");
-		imgPreview.src = imageSrc;
+		imgPreview.src = CONFIG.BACKEND_ROOT_URL + imageSrc;
 		imgPreview.width = 100;
 		imgPreview.alt = "프로필 사진";
 		imgPreview.classList.add("profileImage");
 		profilePreview.appendChild(imgPreview);
-
-		// 🔹 헤더 프로필 이미지 업데이트
-		const profilePic = document.createElement("img");
-		profilePic.id = "profilePic";
-		profilePic.src = imageSrc;
-		profilePic.style.width = "30px";
-		profilePic.style.height = "30px";
-		profilePic.style.borderRadius = "50%";
-
-		// 기존 헤더 이미지 삭제 후 추가 (중복 방지)
-		const existingProfilePic = document.getElementById("profilePic");
-		if (existingProfilePic) existingProfilePic.remove();
-		header.appendChild(profilePic);
 	};
 
 	// ✅ 초기 로그인 시 프로필 반영
@@ -108,13 +95,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 		try {
 			// **파일 로딩 완료 후 실행**
-			uploadedProfileImage = await readFileAsync(file);
+			uploadedProfileImage = file;
+			const uploadedProfileImagePreview = await readFileAsync(file);
+
 			console.log("프로필 이미지 데이터 URL:", uploadedProfileImage);
 
 			// ✅ 기존 이미지 변경 (직접 `src` 속성 변경)
 			profilePreview.innerHTML = ""; // 기존 내용 제거
 			const img = document.createElement("img");
-			img.src = uploadedProfileImage;
+			img.src = uploadedProfileImagePreview;
 			img.width = 100;
 			img.alt = "프로필 사진";
 			img.classList.add("profileImage");
@@ -156,12 +145,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 	confirmButton.addEventListener("click", () => {
 		if (confirmButton.disabled) return;
 
-		const req = {
+		const requestData = {
 			nickname: nickname.value,
-			profileImage: uploadedProfileImage,
 		};
 
-		updateUser(req);
+		updateUser(requestData, uploadedProfileImage);
 
 		tostMessage.classList.add("active");
 		setTimeout(() => {

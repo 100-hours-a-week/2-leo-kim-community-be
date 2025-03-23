@@ -82,13 +82,14 @@ public class UserService {
         return ApiResponse.responseWithHeader(UserResponseMessage.LOGIN_SUCCESS,responseBody,headers);
     }
 
-    public ResponseEntity<ApiResponse> updateUser(HttpServletRequest request, UserUpdateRequest userUpdateRequestDto) {
+    public ResponseEntity<ApiResponse> updateUser(HttpServletRequest request, UserUpdateRequest userUpdateRequestDto, String imagePath) {
+        log.info("Service : {} {}", userUpdateRequestDto.getNickname(), imagePath);
         Long userId = jwtUtil.getUserIdFromJwt(request.getHeader("Authorization"));
         UserEntity user = userRepository.findById(userId).orElseThrow(() ->
             new CustomException(UserResponseMessage.USER_NOT_FOUND)
         );
         user.setNickname(userUpdateRequestDto.getNickname());
-        user.setProfilePic(userUpdateRequestDto.getProfileImage());
+        user.setProfilePic(imagePath);
         return ApiResponse.response(UserResponseMessage.UPDATE_SUCCESS);
     }
 

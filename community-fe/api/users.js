@@ -60,18 +60,33 @@ export const getMe = async () => {
 	return responseData;
 };
 
-export const updateUser = async (req) => {
+export const updateUser = async (requestData, profileImage) => {
+	console.log(requestData);
+	console.log(profileImage);
 	const accessToken = sessionStorage.getItem("accessToken");
 	const refreshToken = sessionStorage.getItem("refreshToken");
+	console.log(accessToken);
+	console.log(refreshToken);
+
+	const formData = new FormData();
+
+	// JSON 데이터를 Blob으로 감싸서 전송
+	formData.append(
+		"data",
+		new Blob([JSON.stringify(requestData)], { type: "application/json" })
+	);
+
+	if (profileImage) {
+		formData.append("profileImage", profileImage);
+	}
+
 	const response = await fetch(baseURL, {
 		method: "PUT",
 		headers: {
-			"Content-Type": "application/json",
 			Authorization: accessToken,
-			refreshToken: refreshToken,
+			refreshToken,
 		},
-		credentials: "include",
-		body: JSON.stringify(req),
+		body: formData,
 	});
 	console.log(response);
 	return response;
