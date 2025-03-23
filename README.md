@@ -68,7 +68,7 @@ implementation 'org.projectlombok:lombok'
 
 ### ⚠️ 예외 처리
 
--   토큰 만료 시 `ExceptionHandler`가 다른 프리세스 필터로 바뀌기 드릴 수 없음
+-   Filter 단계에서 예외가 발생하면 ExceptionHandler까지 도달하지 않아 Filter 내부에서 로직처리
 -   Spring Security의 `AuthenticationEntryPoint`로 대체 가능
 
 ---
