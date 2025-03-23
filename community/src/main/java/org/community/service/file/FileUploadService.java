@@ -12,20 +12,21 @@ import java.util.UUID;
 @Service
 public class FileUploadService {
     public final String PROFILE_IMAGE_PATH = System.getProperty("user.dir")+"/community/upload/profiles/";
-    public final String PROFILE_IMAGE_WEB_PATH = "/upload/profiles/"; // 🔥 이걸 반환
+    public final String PROFILE_IMAGE_WEB_PATH = "/upload/profiles/";
+    public final String POST_IMAGE_PATH = System.getProperty("user.dir")+"/community/upload/post/";
+    public final String POST_IMAGE_WEB_PATH = "/upload/post/";
 
-
-    public String saveProfileImage(MultipartFile file) {
+    public String saveImage(MultipartFile file, boolean isProfile) {
         log.info(file.getOriginalFilename());
         try {
             String originalFilename = file.getOriginalFilename();
             String uuid = UUID.randomUUID().toString();
             String savedName = (uuid + "_" + originalFilename).trim();
 
-            File dest = new File(PROFILE_IMAGE_PATH, savedName);
+            File dest = new File(isProfile ? PROFILE_IMAGE_PATH : POST_IMAGE_PATH, savedName);
             file.transferTo(dest);
 
-            return PROFILE_IMAGE_WEB_PATH + savedName; // DB에는 이 경로만 저장
+            return (isProfile ? PROFILE_IMAGE_WEB_PATH : POST_IMAGE_WEB_PATH) + savedName; // DB에는 이 경로만 저장
         } catch (IOException e) {
             throw new RuntimeException("파일 저장 실패", e);
         }

@@ -35,11 +35,13 @@ export const login = async (request) => {
 	});
 	const responseData = await response.json();
 	console.log(responseData);
-	const accessToken = response.headers.get("Authorization");
-	const refreshToken = response.headers.get("refreshToken");
-	sessionStorage.setItem("accessToken", accessToken);
-	sessionStorage.setItem("refreshToken", refreshToken);
-	localStorage.setItem("profileImage", responseData.data.profileImage);
+	if (response.ok) {
+		const accessToken = response.headers.get("Authorization");
+		const refreshToken = response.headers.get("refreshToken");
+		sessionStorage.setItem("accessToken", accessToken);
+		sessionStorage.setItem("refreshToken", refreshToken);
+		localStorage.setItem("profileImage", responseData.data.profileImage);
+	}
 	return responseData;
 };
 
@@ -61,12 +63,8 @@ export const getMe = async () => {
 };
 
 export const updateUser = async (requestData, profileImage) => {
-	console.log(requestData);
-	console.log(profileImage);
 	const accessToken = sessionStorage.getItem("accessToken");
 	const refreshToken = sessionStorage.getItem("refreshToken");
-	console.log(accessToken);
-	console.log(refreshToken);
 
 	const formData = new FormData();
 

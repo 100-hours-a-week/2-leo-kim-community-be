@@ -1,4 +1,9 @@
-import { getMe, isDuplicateNickname, updateUser } from "./api/users.js";
+import {
+	deleteUser,
+	getMe,
+	isDuplicateNickname,
+	updateUser,
+} from "./api/users.js";
 import { loadProfileMenu } from "./profileMenu.js";
 import CONFIG from "./config.js";
 
@@ -20,6 +25,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 	const tostMessage = document.getElementById("tost_message");
 	const profilePicAdd = document.getElementById("profilePicAdd");
 	const profileInput = document.getElementById("profileInput");
+	const signOutModal = document.getElementById("signOutModal");
+	const signOut = document.getElementById("signOut");
+	const cancelSignOut = document.getElementById("cancelSignOut");
+	const confirmSignOut = document.getElementById("confirmSignOut");
 
 	// 초기 렌더링
 	let uploadedProfileImage = myInfo.data.profileImage;
@@ -43,7 +52,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	// 프로필 사진 업데이트 후 프로필 메뉴 만드는 비동기처리
 	profileImageUpdate().then(loadProfileMenu);
 
-	// ✅ 프로필 미리보기를 업데이트하는 함수
+	// 프로필 미리보기를 업데이트하는 함수
 	const updateProfilePreview = (imageSrc) => {
 		console.log("updateProfilePreview 실행!", imageSrc);
 
@@ -57,7 +66,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 		profilePreview.appendChild(imgPreview);
 	};
 
-	// ✅ 초기 로그인 시 프로필 반영
+	// 초기 로그인 시 프로필 반영
 	if (uploadedProfileImage) {
 		updateProfilePreview(uploadedProfileImage);
 	}
@@ -155,6 +164,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 		setTimeout(() => {
 			tostMessage.classList.remove("active");
 		}, 2000);
+	});
+
+	signOut.addEventListener("click", () => {
+		console.log("click!");
+		signOutModal.style.display = "flex";
+		cancelSignOut.addEventListener("click", () => {
+			signOutModal.style.display = "none";
+		});
+
+		confirmSignOut.addEventListener("click", async () => {
+			await deleteUser();
+			document.location.href = "Log in.html";
+		});
 	});
 });
 

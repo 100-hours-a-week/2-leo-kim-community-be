@@ -29,6 +29,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,24 +45,24 @@ public class PostService {
     private final JwtUtil jwtUtil;
 
     public ResponseEntity<ApiResponse> getPosts(int page, int size) {
-        Pageable pageable = PageRequest.of(page,size, Sort.by("regDate").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         Page<PostEntity> pages = postRepository.findAll(pageable);
 
         List<PostResponse> postList = pages.getContent().stream()
                 .map(PostResponse::new)
                 .collect(Collectors.toList());
 
-        return ApiResponse.response(UserResponseMessage.POST_FETCH_SUCCESS,postList);
+        return ApiResponse.response(UserResponseMessage.POST_FETCH_SUCCESS, postList);
     }
 
 
-
-    public ResponseEntity<ApiResponse> createPosts(HttpServletRequest request, PostCreateRequest postCreateRequest) {
+    public ResponseEntity<ApiResponse> createPosts(HttpServletRequest request, PostCreateRequest postCreateRequest, String imagePath) {
         Long userId = jwtUtil.getUserIdFromJwt(request.getHeader("Authorization"));
         UserEntity user = userRepository.findById(userId).orElseThrow(() ->
-            new CustomException(UserResponseMessage.USER_NOT_FOUND)
+                new CustomException(UserResponseMessage.USER_NOT_FOUND)
         );
         PostEntity newPost = postCreateRequest.toEntity(user);
+        newPost.setImage(imagePath);
         postRepository.save(newPost);
         return ApiResponse.response(UserResponseMessage.POST_CREATED);
     }
@@ -69,26 +70,39 @@ public class PostService {
     public ResponseEntity<ApiResponse> getPostDetail(HttpServletRequest request, Long postId) {
         PostEntity post = postRepository.findById(postId).orElseThrow(() -> new CustomException(UserResponseMessage.POST_NOT_FOUND));
         Long userId = jwtUtil.getUserIdFromJwt(request.getHeader("Authorization"));
-        PostDetailResponse responseBody = new PostDetailResponse(post,userId);
+        PostDetailResponse responseBody = new PostDetailResponse(post, userId);
 
-        List<Comment> commentList = commentService.getCommentsByPost(userId,post);
+        List<Comment> commentList = commentService.getCommentsByPost(userId, post);
         responseBody.setCommentList(commentList);
 
-        Boolean isLiked = likeService.getIsLiked(request,post);
+        Boolean isLiked = likeService.getIsLiked(request, post);
         responseBody.setIsLiked(isLiked);
-        post.setViews(post.getViews()+1);
-        return ApiResponse.response(UserResponseMessage.POST_FETCH_SUCCESS,responseBody);
+        post.setViews(post.getViews() + 1);
+        return ApiResponse.response(UserResponseMessage.POST_FETCH_SUCCESS, responseBody);
     }
 
-    public ResponseEntity<ApiResponse> updatePost(Long postId, PostUpdateRequest postUpdateRequest) {
+    public ResponseEntity<ApiResponse> updatePost(Long postId, PostUpdateRequest postUpdateRequest, String imagePath) {
 
         PostEntity post = postRepository.findById(postId).orElseThrow(() ->
                 new CustomException(UserResponseMessage.POST_NOT_FOUND)
         );
 
+        // 기존 이미지 파일 삭제
+        String fullOldImagePath = System.getProperty("user.dir") + "/community" + post.getImage();
+        File oldFile = new File(fullOldImagePath);
+
+        if (oldFile.exists()) {
+            boolean deleted = oldFile.delete();
+            if (!deleted) {
+                log.warn("기존 이미지 파일 삭제 실패: {}", fullOldImagePath);
+            } else {
+                log.info("기존 이미지 파일 삭제 성공: {}", fullOldImagePath);
+            }
+        }
+
         post.setTitle(postUpdateRequest.getTitle());
         post.setContents(postUpdateRequest.getContents());
-        post.setImage(postUpdateRequest.getImage());
+        post.setImage(imagePath);
 
         return ApiResponse.response(UserResponseMessage.POST_UPDATED);
     }
@@ -96,7 +110,22 @@ public class PostService {
     /// ////////
 
     public ResponseEntity<ApiResponse> deletePost(Long postId) {
-        postRepository.deleteById(postId);
+        PostEntity post = postRepository.findById(postId).orElseThrow(() -> new CustomException(UserResponseMessage.POST_NOT_FOUND));
+
+        // 기존 이미지 파일 삭제
+        String fullOldImagePath = System.getProperty("user.dir") + "/community" + post.getImage();
+        File oldFile = new File(fullOldImagePath);
+
+        if (oldFile.exists()) {
+            boolean deleted = oldFile.delete();
+            if (!deleted) {
+                log.warn("기존 이미지 파일 삭제 실패: {}", fullOldImagePath);
+            } else {
+                log.info("기존 이미지 파일 삭제 성공: {}", fullOldImagePath);
+            }
+        }
+
+        postRepository.delete(post);
         return ApiResponse.response(UserResponseMessage.POST_DELETED);
     }
 }

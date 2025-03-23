@@ -9,7 +9,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 실제 파일 저장 경로
-        registry.addResourceHandler("/upload/profiles/**","/upload/post/**")
+        registry.addResourceHandler("/upload/profiles/**")
                 .addResourceLocations("file:" + System.getProperty("user.dir") + "/community/upload/profiles/");
+        registry.addResourceHandler("/upload/post/**")
+                .addResourceLocations("file:" + System.getProperty("user.dir") + "/community/upload/post/");
+
     }
 }

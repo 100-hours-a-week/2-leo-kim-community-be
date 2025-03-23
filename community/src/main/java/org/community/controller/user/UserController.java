@@ -38,7 +38,7 @@ public class UserController {
 
         String imagePath = null;
         if (profileImage != null && !profileImage.isEmpty()) {
-            imagePath = fileUploadService.saveProfileImage(profileImage);
+            imagePath = fileUploadService.saveImage(profileImage, true);
         }
         return userService.signup(request, imagePath);
     }
@@ -53,9 +53,8 @@ public class UserController {
 
         String imagePath = null;
         if (profileImage != null && !profileImage.isEmpty()) {
-            imagePath = fileUploadService.saveProfileImage(profileImage);
+            imagePath = fileUploadService.saveImage(profileImage, true);
         }
-        log.info("********* imagePath{}", imagePath);
 
         return userService.updateUser(request,  userUpdateRequestDto, imagePath);
     }

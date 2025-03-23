@@ -1,5 +1,6 @@
 import { getMe } from "./api/users.js";
 import { getPostDetail, updatePost } from "./api/posts.js";
+import CONFIG from "./config.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
 	// JWT 이상하면 로그인
@@ -20,7 +21,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 	const postId = JSON.parse(localStorage.getItem("selectedPostIdx"));
 	const res = await getPostDetail(postId);
 	const post = res.data;
-	let uploadedImage = post.image || "";
+	console.log(post);
+	let uploadedImage = null;
 
 	title.value = post.title;
 	content.value = post.contents;
@@ -50,8 +52,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 		if (file) {
 			const reader = new FileReader();
 			reader.onload = function (e) {
-				uploadedImage = e.target.result; // 이미지 데이터를 base64로 저장
-				showImage.innerHTML = `<img src="${uploadedImage}" width="200" alt="업로드 이미지" />`;
+				uploadedImage = file; // 이미지 데이터를 base64로 저장
+				showImage.innerHTML = `<img src="${e.target.result}" width="200" alt="업로드 이미지" />`;
 			};
 			reader.readAsDataURL(file);
 		}
@@ -61,13 +63,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 		helper.innerText = validateTitleAndContent(title.value, content.value);
 
 		if (!helper.innerText) {
-			const req = {
+			const requestData = {
 				title: title.value,
 				contents: content.value,
-				image: uploadedImage,
 			};
-			console.log(req);
-			await updatePost(req, postId);
+			console.log(requestData);
+			await updatePost(requestData, postId, uploadedImage);
 			document.location.href = "Posts.html";
 		}
 	});

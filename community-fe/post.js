@@ -77,10 +77,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 	});
 
 	// 게시글 정보 표시
-	// TODO : 프로필 이미지
-	authorProfile.innerHTML = `<image src=${encodeURI(
-		CONFIG.BACKEND_ROOT_URL + post.author.profileImage
-	)} class="authorProfile">`;
+	authorProfile.innerHTML = `<image src=${
+		post.author.profileImage
+			? encodeURI(CONFIG.BACKEND_ROOT_URL + post.author.profileImage)
+			: "./profile_img.webp"
+	} class="authorProfile">`;
 	authorProfile.style.marginRight = "10px";
 	title.innerText = post.title;
 	author.innerText = post.author.nickname;
@@ -88,7 +89,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	contents.innerText = post.contents;
 	if (post.image) {
 		// TODO : 업로드 이미지
-		picture.src = post.image;
+		picture.src = CONFIG.BACKEND_ROOT_URL + post.image;
 	}
 
 	// 게시글 정보 렌더링 (조회수, 좋아요, 댓글수)
@@ -166,8 +167,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	// 초기 댓글 핸들러 설정
 	setupDefaultCommentHandler(commentBtn);
-
-	// ------- 위에 까진 햇음 ------------
 
 	// 댓글 수정
 	const setupEditHandler = (commentId, initialContent) => {
