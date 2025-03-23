@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 	// 프로필 사진 업데이트
 	const profileImageUpdate = async () => {
 		const profileImage = myInfo.data.profileImage;
-		console.log(profileImage);
 		const profilePic = document.createElement("img");
 		profilePic.id = "profilePic";
 		profilePic.src = profileImage
@@ -95,7 +94,12 @@ const addPostList = (postList) => {
 			</div>
 		</div>
 		<hr class="line"/>
-		<div class="author">${item.user.nickname}</div>
+		<div class="author">
+		<img src=${
+			CONFIG.BACKEND_ROOT_URL + item.user.profileImage
+		} class="authorProfile"/>
+		${item.user.nickname}
+		</div>
 	`;
 
 		postDiv.addEventListener("click", () => {

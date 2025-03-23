@@ -3,6 +3,7 @@ import { getMe } from "./api/users.js";
 import { getPostDetail, deletePost } from "./api/posts.js";
 import { toggleLike } from "./api/likes.js";
 import { createComment, updateComment, deleteComment } from "./api/comments.js";
+import CONFIG from "./config.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
 	// JWT 이상하면 로그인
@@ -43,7 +44,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 		const profileImage = myInfo.data.profileImage;
 		const profilePic = document.createElement("img");
 		profilePic.id = "profilePic";
-		profilePic.src = profileImage ? profileImage : "./profile_img.webp";
+		profilePic.src = profileImage
+			? CONFIG.BACKEND_ROOT_URL + profileImage
+			: "./profile_img.webp";
 		profilePic.style.width = "30px";
 		profilePic.style.height = "30px";
 		profilePic.style.borderRadius = "50%";
@@ -75,7 +78,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	// 게시글 정보 표시
 	// TODO : 프로필 이미지
-	authorProfile.innerHTML = `<image src=${post.author.profileImage}>`;
+	authorProfile.innerHTML = `<image src=${
+		CONFIG.BACKEND_ROOT_URL + post.author.profileImage
+	} class="authorProfile">`;
 	authorProfile.style.marginRight = "10px";
 	title.innerText = post.title;
 	author.innerText = post.author.nickname;
