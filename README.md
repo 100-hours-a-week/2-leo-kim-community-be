@@ -1,66 +1,113 @@
-1. Spring Boot 프로젝트 생성
-   Homebrew 17.0.14 버전의 JDK로 생성하였습니다.
-2. 의존성 추가 및 설정
-  <ul>
-  <li>서버 구동을 위한 org.springframework.boot:spring-boot-starter-web</li>
-  <li>JPA 사용을 위한 org.springframework.boot:spring-boot-starter-data-jpa</li>
-  <li>유효성 검사를 위한 org.springframework.boot:spring-boot-starter-validation</li>
-  <li>어노테이션 활성화를 위한 org.projectlombok:lombok</li>
-  </ul>
- 그리고 mysql과 연동을 위해 application.yml에 설정을 추가하였습니다.
+# 🌐 Spring Boot 커뮤니티 프로젝트
 
-3. 파일 구조
-   기본적인 Controller, Service, Repository, Entity, Dto를 추가하였고, response의 형식이 statuscode, message, data로 동일하다는 점을 이용해 ApiResponse로 통일하였습니다. 또한 Enum class를 이용하여 각 코드와 상황을 열거하였습니다.
+Spring Boot 기반의 커뮤니티 웹 애플리케이션입니다.\
+JWT 인증, 게시글 및 댓글 CRUD, 프리플/게시물 이미지 업로드 및 관리 기능 등을 포함합니다.
 
-4. JJWT 라이브러리를 이용한 Jwt 구현
-   JWT를 구현하는데 널리 사용되는게 Apache의 JJWT, MIT의 Java Jwt라고 합니다. 그 중 더 많은 기능을 제공하고, github의 star, fork 수가 더 많은 JJWT 라이브러리르 택하여 Jwt 를 구현하였습니다.
-   JwtFilter를 Spring Security에 달아두어 자동으로 accessToken, refreshToken에 대한 검증을 하도록 했습니다.
+---
 
-    추가사항 : refreshToken을 저장하는 Redis의 사용에 대한 고민, refreshToken으로 accesstoken재발급에 대한 고민
+## 📦 개발 환경 및 주요 스택
 
-Update에서 Transactional FetchType, Propagation에 대한 설정에 대한 고민
-https://velog.io/@nuh__d/JPA-FetchType.LAZY-%EC%9C%BC%EB%A1%9C-%EC%9D%B8%ED%95%9C-%EB%B0%9C%EC%83%9D%ED%96%88%EB%8D%98-%EB%AC%B8%EC%A0%9C%EC%A0%90
+-   **Language**: Java 17 (Homebrew 설치 버전)
+-   **Framework**: Spring Boot
+-   **Database**: MySQL
+-   **ORM**: Spring Data JPA (Hibernate)
+-   **JWT**: Apache JJWT
+-   **Build Tool**: Gradle
+-   **기타**: Lombok, File I/O
 
-accessToken에서 userId를 가져올 때 Bearer를 빼지 않고 추출하면 Invalid Token을 던지게 된다.
+---
 
-@Transactional을 붙여서 Fetchtype-lazy로 인한 문제를 해결하였다. -> createComment
-UserEntity의 getLikedPosts() 메서드는 @OneToMany(fetch = FetchType.LAZY) 설정이 되어 있어 처음에는 프록시 객체로 로드된다.
-하지만 toString(), .size() 등의 메서드를 호출하여 실제 데이터를 조회하려고 하면 LazyInitializationException이 발생한다.
-이는 해당 엔티티가 트랜잭션 내에서 조회되지 않았거나, 트랜잭션이 종료된 후 데이터를 조회하려고 시도하기 때문이다.
-이를 해결하기 위해 @Transactional을 사용하여 트랜잭션(Persistence Context)을 유지하면, EntityManager가 열려 있어 Lazy Loading이 정상적으로 작동한다.
+## 📁 주요 의존성
 
-UserEntity와 PostEntity의 상호 @Tostring, log으로 인한 stackoverflow가 생겼다.
+```gradle
+implementation 'org.springframework.boot:spring-boot-starter-web'
+implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+implementation 'org.springframework.boot:spring-boot-starter-validation'
+implementation 'org.projectlombok:lombok'
+```
 
-Entity에 implements Serializable가 권장된다고 JPA 문서에 명시되어있다.
-하지만 최근엔 굳이 사용하지 않아도 된다고한다.
+-   `application.yml`에서 MySQL 연결 설정 추가
 
-1. DTO, VO의 사용:
-   요즘 구현을 할 때 DTO, VO를 사용하지 않고, Entity 자체를 보내는 경우는 거의 없다.
-2. 직렬화 대안 기술:
-   Spring boot와 MSA 환경에서는 JSON, XML 등의 직렬화 대안 기술을 활용하여 데이터를 주고 받는 것이 일반적이다.
-   JSON을 사용하는 경우 Jackson 라이브러리가 자동으로 객체를 JSON으로 변환하고 역직렬화한다. 이 경우 클래스 버전과 환경의 일치성을 걱정할 필요가 없을 수 있다.
-3. 클래스 로딩 및 Classpath 관리:
-   Spring boot와 MSA 환경은 클래스 로딩과 Classpath 관리를 편리하게 제공한다.
-   필요한 클래스들을 각 마이크로서비스의 패키지 구조에 잘 배치하고, 의존성 관리를 해주면, 클래스 버전 및 환경의 불일치 문제를 최소화할 수 있다.
-4. 마이크로서비스 아키텍처의 장점:
-   MSA 환경에서는 각 서비스가 독립적으로 배포되고 실행되므로, 클래스나 환경의 변경이 각 서비스에 미치는 영향이 제한적일 수 있다.
-   이로 인해 클래스나 환경의 변화로 인한 문제가 다른 서비스로 전파되는 것을 최소화할 수 있다.
+---
 
-고민사항 : ~~이미지 저장을 MongoDB를 이용할 것인가,~~ 아니면 그냥 디렉토리에 저장할 것인가.
+## 📁 프로젝트 구조
 
-근데 comment가 달려서 comment만 다시 가져와서 리렌더링하는 형식으로하면, 댓글 달린 사이에 그 post author의 정보가 바뀌면 그건 반영이 안되는데? 결국 새로고침으로 다시 가져와야하나?
+-   `controller`: API 요청 처리
+-   `service`: 비즈니스 로직
+-   `repository`: 데이터 접근
+-   `dto`: 요청/응답용 객체
+-   `entity`: DB 테이블 매핑
+-   `config`: 보안 및 정적 리소스 설정
+-   `common`, `global`: 공통 응답, 예외 처리 등
+-   `filter`: JWT Filter 등 필터
+-   `util`: JWT 생성, 검증 등 도구
 
-또, likeList의 size로 like수를 가져오는게아니라 like flag? 를 entity에 만들어놓고 그걸 반환하자 -> likeList를 SELECT하는 쿼리가 불필요하기때문
+---
 
-토큰이 만료되면 만들어둔 ExceptionHandler를 RestControllerAdvice로 설정하여 exception을 던지지 말고 메시지를 리턴하게끔 해놨으나, jwtFilter에 의해 먼저 걸러져서 ExceptionHandler는 무시되고 예외를 그냥 던지는 문제가 있었다. Exception의 stack trace 도중 jwtFilter가 먼저이기 때문. 이를 해결하는 방법이
+## 📌 공통 응답 형식 (ApiResponse)
 
-1. Filter내부에서 로직처리를 한다.(리턴하게끔 한다.)
-2. AuthenticationEntryPoint를 이용한다.
-   우선은 Filter내부에서 로직처리를 하고, 프로젝트를 완성하는 방향으로 진행하였다.
+모든 응답은 아래 형식을 따릅니다:
 
-TODO : 좋아요 한번 누르는데 쿼리문의 불필요한 호출이 있는거같은데? 다른 API도 마찬가지고? 다 까봐야한다.
+```json
+{
+	"statusCode": 200,
+	"message": "SUCCESS",
+	"data": {}
+}
+```
 
-TODO : 인증을 받기 위해 getMe 호출을 하는데 getMe는 한번만 호출받고 인증요청만 따로 실행하는게 맞을거같기도하고?
+`Enum` 클래스를 통해 상황별 메시지와 코드를 관리합니다.
 
-파일 업로드, 변경 구현
-변경, 삭제 시에 업로드된 파일은 삭제하여 메모리 관리를 하였습니다.
+---
+
+## 🔐 인증 및 보안
+
+-   Apache JJWT 라이브러리로 JWT 구현
+-   `JwtFilter`를 Spring Security 필터 체인에 드래그
+-   AccessToken/RefreshToken 인증
+-   추후 Redis를 통한 RefreshToken 관리 가능성 고려
+
+### ⚠️ 예외 처리
+
+-   토큰 만료 시 `ExceptionHandler`가 다른 프리세스 필터로 바뀌기 드릴 수 없음
+-   Spring Security의 `AuthenticationEntryPoint`로 대체 가능
+
+---
+
+## 🖼️ 파일 업로드 및 이미지 관리
+
+-   회원 프리플, 게시글 이미지 업로드 기능
+-   로컬 디렉토리에 저장 (`/upload/profiles`, `/upload/post`)
+-   이미지 변경/삭제 시 기존 파일 삭제 처리 포함
+
+---
+
+## 🚀 고민 태겟 & 테크니티 내용
+
+-   `getMe`는 JWT 확인을 위해 모두의 페이지에서 한 번만 호출하고, 인증만 간단히 호출하는 것이 더 효율적일 것.
+-   게시글 좋아요 수 등은 `likeList.size()` 대신 `likeCount` 필드를 관리해 쿼리 최적화
+-   게시글, 프로필 이미지 변경 시 이전 파일 삭제 처리
+-   @Transactional로 LAZY 로딩 문제 해결
+-   Entity 간 양방향 참조 시 StackOverflow 방지를 위해 toString 제외 처리
+
+---
+
+## 📈 현재 고민 기사
+
+-   댓글만 리렌더링할 경우, 그 사이에 작성자의 정보가 바뀌면 반영이 안 되는 문제 (해결 필요)
+-   이미지 저장 방식으로 MongoDB가 아닌 디렉토리 저장 방식 선택
+-   예외 전파를 위한 ExceptionHandler 동작 시점 및 필터 순서 이슈
+-   좋아요 등 간단한 상태 변경 시 불필요한 쿼리 호출 최적화 필요
+
+---
+
+✅ TODO
+
+-   좋아요 요청 시, 불필요한 쿼리 호출 여부 확인 및 최적화 필요
+    (예: likeList 전체를 조회하지 않고 별도의 flag 사용 등)
+-   다른 API에도 불필요한 쿼리 호출이 없는지 점검 필요
+-   인증을 위해 getMe 호출 시, 실제 인증과 데이터 조회를 분리할지에 대한 고민
+    (예: getMe는 한 번만 호출하고, 인증 여부만 확인하는 별도 API 고려)
+-   댓글 등록 후 리렌더링 방식 개선
+    (현재는 새로고침해야 반영됨. 댓글만 다시 fetch하여 부분 렌더링하는 방식 고려)
+-   전체 API 흐름 점검 및 불필요한 연산/쿼리 최소화
