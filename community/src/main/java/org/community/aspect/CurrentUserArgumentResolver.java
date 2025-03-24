@@ -28,6 +28,7 @@ public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolve
                 parameter.getParameterType().equals(UserEntity.class);
     }
 
+    // 헤더의 accessToken으로 userId를 조회하여 UserEntity를 리턴
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();

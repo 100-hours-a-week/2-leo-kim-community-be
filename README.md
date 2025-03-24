@@ -113,6 +113,7 @@ implementation 'org.projectlombok:lombok'
 -   사진 업데이트가 아니라 단순히 내리는 것에 대한 로직처리
 -   JWT accesToken refreshToken 로직 수정
 -   AOP(HandlerMethodArgumentResolver)를 활용하여 중복된 횡단 관심사 처리(UserEntity 조회 후 활용 등)
+-   CommonFunction클래스를 이용하여 결합도를 낮추려고 노력. -> return해야하는 ApiResponse는 서비스에서 처리, throw해야하는건 common에서 처리
 
 ## 12. 회고
 
