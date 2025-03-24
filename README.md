@@ -83,7 +83,6 @@ implementation 'org.projectlombok:lombok'
 
 ## 🚀 고민 태겟 & 테크니티 내용
 
--   `getMe`는 JWT 확인을 위해 모두의 페이지에서 한 번만 호출하고, 인증만 간단히 호출하는 것이 더 효율적일 것.
 -   게시글 좋아요 수 등은 `likeList.size()` 대신 `likeCount` 필드를 관리해 쿼리 최적화
 -   게시글, 프로필 이미지 변경 시 이전 파일 삭제 처리
 -   @Transactional로 LAZY 로딩 문제 해결
@@ -93,8 +92,8 @@ implementation 'org.projectlombok:lombok'
 
 ## 📈 현재 고민
 
+-   `getMe`는 JWT 확인을 위해 모두의 페이지에서 한 번만 호출하고, 인증만 간단히 호출하는 것이 더 효율적일 것 같다는 생각
 -   댓글만 리렌더링할 경우, 그 사이에 작성자의 정보가 바뀌면 반영이 안 되는 문제 (해결 필요)
--   이미지 저장 방식으로 MongoDB가 아닌 디렉토리 저장 방식 선택
 -   예외 전파를 위한 ExceptionHandler 동작 시점 및 필터 순서 이슈
 -   좋아요 등 간단한 상태 변경 시 불필요한 쿼리 호출 최적화 필요
 
@@ -111,6 +110,7 @@ implementation 'org.projectlombok:lombok'
     (현재는 새로고침 후 반영. 댓글만 다시 fetch하여 부분 렌더링하는 방식 고려)
 -   전체 API 흐름 점검 및 불필요한 연산/쿼리 최소화
 -   `@Transactional`을 필요한 메서드에만 설정하여 최적화
+-   JWT accesToken refreshToken 로직 수정
 
 ## 12. 회고
 
