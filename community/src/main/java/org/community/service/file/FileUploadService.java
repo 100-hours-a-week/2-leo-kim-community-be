@@ -11,9 +11,12 @@ import java.util.UUID;
 @Slf4j
 @Service
 public class FileUploadService {
+    // 이미지 저장을 위한 절대 경로
     public final String PROFILE_IMAGE_PATH = System.getProperty("user.dir")+"/community/upload/profiles/";
-    public final String PROFILE_IMAGE_WEB_PATH = "/upload/profiles/";
     public final String POST_IMAGE_PATH = System.getProperty("user.dir")+"/community/upload/post/";
+
+    // DB저장, 웹에서 열람을 위한 root에서 상대 경로
+    public final String PROFILE_IMAGE_WEB_PATH = "/upload/profiles/";
     public final String POST_IMAGE_WEB_PATH = "/upload/post/";
 
     public String saveImage(MultipartFile file, boolean isProfile) {
@@ -29,6 +32,12 @@ public class FileUploadService {
             return (isProfile ? PROFILE_IMAGE_WEB_PATH : POST_IMAGE_WEB_PATH) + savedName; // DB에는 이 경로만 저장
         } catch (IOException e) {
             throw new RuntimeException("파일 저장 실패", e);
+        }
+    }
+
+    public void deleteImage(File oldFile){
+        if (oldFile.exists()) {
+            oldFile.delete();
         }
     }
 }

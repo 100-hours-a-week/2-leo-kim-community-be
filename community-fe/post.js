@@ -8,6 +8,7 @@ import CONFIG from "./config.js";
 document.addEventListener("DOMContentLoaded", async () => {
 	// JWT 이상하면 로그인
 	const myInfo = await getMe();
+	console.log(myInfo);
 	if (myInfo.message.startsWith("JWT")) {
 		document.location.href = "Log in.html";
 	}
@@ -69,6 +70,27 @@ document.addEventListener("DOMContentLoaded", async () => {
         <button class="delete" id="deleteBtn">삭제</button> 
         `;
 		buttonsSetup();
+
+		const deleteButtonPost = document.getElementById("deleteBtn");
+		const deleteModalPost = document.getElementById("deleteModalPost");
+
+		const cancelButton = document.getElementById("cancelButtonPost");
+		const confirmDeleteButton = document.getElementById(
+			"confirmDeleteButtonPost"
+		);
+
+		deleteButtonPost.addEventListener("click", () => {
+			deleteModalPost.style.display = "flex";
+
+			confirmDeleteButton.addEventListener("click", async () => {
+				await deletePost(postId);
+				window.location.href = "Posts.html";
+			});
+
+			cancelButton.addEventListener("click", () => {
+				deleteModalPost.style.display = "none";
+			});
+		});
 	}
 
 	// 뒤로가기
@@ -78,8 +100,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	// 게시글 정보 표시
 	authorProfile.innerHTML = `<image src=${
-		post.author.profileImage
-			? encodeURI(CONFIG.BACKEND_ROOT_URL + post.author.profileImage)
+		post.author.profileImagePath
+			? encodeURI(CONFIG.BACKEND_ROOT_URL + post.author.profileImagePath)
 			: "./profile_img.webp"
 	} class="authorProfile">`;
 	authorProfile.style.marginRight = "10px";
@@ -194,28 +216,43 @@ document.addEventListener("DOMContentLoaded", async () => {
 		});
 	};
 
-	//게시물 삭제
-	const deleteButtonPost = document.getElementById("deleteBtn");
-	const deleteModalComment = document.getElementById("deleteModalPost");
-	const cancelButton = document.getElementById("cancelButtonPost");
-	const confirmDeleteButton = document.getElementById(
-		"confirmDeleteButtonPost"
-	);
-
-	deleteButtonPost.addEventListener("click", () => {
-		deleteModalComment.style.display = "flex";
-
-		confirmDeleteButton.addEventListener("click", async () => {
-			await deletePost(postId);
-			window.location.href = "Posts.html";
-		});
-	});
+	console.log(comments);
 
 	// 댓글 삭제
 	comments.addEventListener("click", (event) => {
+		const deleteModalComment =
+			document.getElementById("deleteModalComment");
 		if (event.target.classList.contains("deleteButton")) {
 			selectedCommentId = event.target.dataset.index;
 			deleteModalComment.style.display = "flex";
+
+			const confirmDeleteButton = document.getElementById(
+				"confirmDeleteButton"
+			);
+			const cancelButton = document.getElementById("cancelButton");
+
+			console.log(confirmDeleteButton);
+			console.log(cancelButton);
+
+			confirmDeleteButton.addEventListener("click", async () => {
+				if (!selectedCommentId) return;
+
+				try {
+					await deleteComment(selectedCommentId); // 🔧 API 요청
+					window.location.reload(); // 또는 댓글만 다시 fetch해서 renderComments()
+				} catch (e) {
+					console.error("댓글 삭제 실패:", e);
+					alert("댓글 삭제에 실패했습니다.");
+				} finally {
+					deleteModalComment.style.display = "none";
+					selectedCommentId = null;
+				}
+			});
+
+			cancelButton.addEventListener("click", () => {
+				deleteModalComment.style.display = "none";
+				selectedCommentId = null;
+			});
 		}
 
 		if (event.target.classList.contains("fixButton")) {
@@ -225,27 +262,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 			const contentText = contentDiv.innerText;
 
 			setupEditHandler(commentId, contentText);
-		}
-	});
-
-	// 댓글 삭제 모달
-	cancelButton.addEventListener("click", () => {
-		deleteModalComment.style.display = "none";
-		selectedCommentId = null;
-	});
-
-	confirmDeleteButton.addEventListener("click", async () => {
-		if (!selectedCommentId) return;
-
-		try {
-			await deleteComment(selectedCommentId); // 🔧 API 요청
-			window.location.reload(); // 또는 댓글만 다시 fetch해서 renderComments()
-		} catch (e) {
-			console.error("댓글 삭제 실패:", e);
-			alert("댓글 삭제에 실패했습니다.");
-		} finally {
-			deleteModalComment.style.display = "none";
-			selectedCommentId = null;
 		}
 	});
 });

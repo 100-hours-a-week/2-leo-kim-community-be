@@ -110,6 +110,7 @@ implementation 'org.projectlombok:lombok'
     (현재는 새로고침 후 반영. 댓글만 다시 fetch하여 부분 렌더링하는 방식 고려)
 -   전체 API 흐름 점검 및 불필요한 연산/쿼리 최소화
 -   `@Transactional`을 필요한 메서드에만 설정하여 최적화
+-   사진 업데이트가 아니라 단순히 내리는 것에 대한 로직처리
 -   JWT accesToken refreshToken 로직 수정
 
 ## 12. 회고

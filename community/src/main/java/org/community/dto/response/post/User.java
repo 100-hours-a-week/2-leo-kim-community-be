@@ -8,11 +8,11 @@ import lombok.Setter;
 @Setter
 public class User {
     private String nickname;
-    private String profileImage;
+    private String profileImagePath;
 
     @Builder
-    User(String nickname, String profileImage){
+    User(String nickname, String profileImagePath){
         this.nickname = nickname;
-        this.profileImage = profileImage;
+        this.profileImagePath = profileImagePath;
     }
 }

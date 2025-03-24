@@ -14,14 +14,12 @@ import org.community.entity.user.UserEntity;
 public class PostUpdateRequest {
     private String title;
     private String contents;
-    private String image;
 
     public PostEntity toEntity(UserEntity user){
         return PostEntity.builder()
                 .user(user)
                 .title(title)
                 .contents(contents)
-                .image(image)
                 .build();
     }
 }

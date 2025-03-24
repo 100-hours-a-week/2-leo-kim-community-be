@@ -40,7 +40,6 @@ export const login = async (request) => {
 		const refreshToken = response.headers.get("refreshToken");
 		sessionStorage.setItem("accessToken", accessToken);
 		sessionStorage.setItem("refreshToken", refreshToken);
-		localStorage.setItem("profileImage", responseData.data.profileImage);
 	}
 	return responseData;
 };

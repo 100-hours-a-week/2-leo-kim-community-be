@@ -4,9 +4,13 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.community.common.user.UserResponseMessage;
+import org.community.dto.request.user.UserLoginRequest;
+import org.community.entity.user.UserEntity;
 import org.community.global.CustomException;
+import org.community.respository.user.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,15 +29,18 @@ public class JwtUtil {
     private final String secretKey;
     private final long ACCESS_EXPIRATION_TIME;
     private final long REFRESH_EXPIRATION_TIME;
+    private final UserRepository userRepository;
 
     public JwtUtil(
             @Value("${jwt.secret}") String secretKey,
             @Value("${jwt.accesstoken-validity-in-seconds}") long accessTokenValidity,
-            @Value("${jwt.refreshtoken-validity-in-seconds}") long refreshTokenValidity
+            @Value("${jwt.refreshtoken-validity-in-seconds}") long refreshTokenValidity,
+            UserRepository userRepository
     ) {
         this.secretKey = secretKey;
         this.ACCESS_EXPIRATION_TIME = accessTokenValidity;
         this.REFRESH_EXPIRATION_TIME = refreshTokenValidity;
+        this.userRepository = userRepository;
     }
 
     public SecretKey getKey() {
@@ -126,4 +133,6 @@ public class JwtUtil {
                 .parseSignedClaims(jwt)
                 .getPayload();
     }
+
+
 }

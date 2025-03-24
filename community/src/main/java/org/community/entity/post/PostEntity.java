@@ -1,6 +1,5 @@
 package org.community.entity.post;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.community.entity.comment.CommentEntity;
@@ -30,13 +29,29 @@ public class PostEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LikedUserEntity> likedUsers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommentEntity> comments = new ArrayList<>();
+
     @Column(nullable = false)
     private String title;
 
     @Column(nullable = false)
     private String contents;
 
-    private String image;
+    @Column(name="post_image_path")
+    private String postImagePath;
+
+    @Column(nullable = false)
+    private Integer views;
+
+    @Column(name = "likes_cnt", nullable = false)
+    private Integer likesCnt;
+
+    @Column(name = "comments_cnt", nullable = false)
+    private Integer commentsCnt;
 
     @CreationTimestamp
     @Column(name = "reg_date", updatable = false)
@@ -46,27 +61,12 @@ public class PostEntity {
     @Column(name = "mod_date")
     private Date modDate;
 
-    @Column(name = "views", nullable = false)
-    private Integer views;
-
-    @Column(name = "likes_cnt", nullable = false)
-    private Integer likesCnt;
-
-    @Column(name = "comments_cnt", nullable = false)
-    private Integer commentsCnt;
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<LikedUserEntity> likedUsers = new ArrayList<>();
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CommentEntity> comments = new ArrayList<>();
-
     @Builder
-    public PostEntity(UserEntity user, String title, String contents, String image) {
+    public PostEntity(UserEntity user, String title, String contents, String postImagePath) {
         this.user = user;
         this.title = title;
         this.contents = contents;
-        this.image = image;
+        this.postImagePath = postImagePath;
         this.views = 0;
         this.likesCnt = 0;
         this.commentsCnt = 0;

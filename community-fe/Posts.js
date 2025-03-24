@@ -96,8 +96,10 @@ const addPostList = (postList) => {
 		<hr class="line"/>
 		<div class="author">
 		<img src=${
-			item.user.profileImage
-				? encodeURI(CONFIG.BACKEND_ROOT_URL + item.user.profileImage)
+			item.user.profileImagePath
+				? encodeURI(
+						CONFIG.BACKEND_ROOT_URL + item.user.profileImagePath
+				  )
 				: "./profile_img.webp"
 		} class="authorProfile"/>
 		${item.user.nickname}

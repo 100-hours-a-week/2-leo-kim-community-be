@@ -62,7 +62,7 @@ public class PostService {
                 new CustomException(UserResponseMessage.USER_NOT_FOUND)
         );
         PostEntity newPost = postCreateRequest.toEntity(user);
-        newPost.setImage(imagePath);
+        newPost.setPostImagePath(imagePath);
         postRepository.save(newPost);
         return ApiResponse.response(UserResponseMessage.POST_CREATED);
     }
@@ -88,7 +88,7 @@ public class PostService {
         );
 
         // 기존 이미지 파일 삭제
-        String fullOldImagePath = System.getProperty("user.dir") + "/community" + post.getImage();
+        String fullOldImagePath = System.getProperty("user.dir") + "/community" + post.getPostImagePath();
         File oldFile = new File(fullOldImagePath);
 
         if (oldFile.exists()) {
@@ -102,7 +102,7 @@ public class PostService {
 
         post.setTitle(postUpdateRequest.getTitle());
         post.setContents(postUpdateRequest.getContents());
-        post.setImage(imagePath);
+        post.setPostImagePath(imagePath);
 
         return ApiResponse.response(UserResponseMessage.POST_UPDATED);
     }
@@ -113,7 +113,7 @@ public class PostService {
         PostEntity post = postRepository.findById(postId).orElseThrow(() -> new CustomException(UserResponseMessage.POST_NOT_FOUND));
 
         // 기존 이미지 파일 삭제
-        String fullOldImagePath = System.getProperty("user.dir") + "/community" + post.getImage();
+        String fullOldImagePath = System.getProperty("user.dir") + "/community" + post.getPostImagePath();
         File oldFile = new File(fullOldImagePath);
 
         if (oldFile.exists()) {

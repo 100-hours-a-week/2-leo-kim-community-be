@@ -12,13 +12,15 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
-@ToString
 public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", unique = true, nullable = false)
     private Long userId;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LikedUserEntity> likedPosts = new ArrayList<>();
 
     @Column(name = "email", unique = true, nullable = false)
     private String email;
@@ -29,18 +31,14 @@ public class UserEntity {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "profile_pic")
-    private String profilePic;
+    @Column(name = "profile_image_path")
+    private String profileImagePath;
 
-    // Builder 어노테이션 방식
     @Builder
-    public UserEntity(String email, String nickname, String password, String profilePic) {
+    public UserEntity(String email, String nickname, String password, String profileImagePath) {
         this.email = email;
         this.nickname = nickname;
         this.password = password;
-        this.profilePic = profilePic;
+        this.profileImagePath = profileImagePath;
     }
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<LikedUserEntity> likedPosts = new ArrayList<>();
 }

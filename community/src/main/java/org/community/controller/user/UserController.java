@@ -21,14 +21,16 @@ public class UserController {
     private final UserService userService;
     private final FileUploadService fileUploadService;
 
+
+    /* 현재 안쓰는 endpoint
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse> getUser(@PathVariable Long userId){
         return userService.getUser(userId);
     }
+     */
 
     @GetMapping
     public ResponseEntity<ApiResponse> getMe(HttpServletRequest request){
-        log.info("**************{}",System.getProperty("user.dir"));
         return userService.getMe(request);
     }
 
@@ -50,13 +52,7 @@ public class UserController {
 
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse> updateUser(HttpServletRequest request, @RequestPart("data") UserUpdateRequest userUpdateRequestDto, @RequestPart(value = "profileImage", required = false) MultipartFile profileImage){
-
-        String imagePath = null;
-        if (profileImage != null && !profileImage.isEmpty()) {
-            imagePath = fileUploadService.saveImage(profileImage, true);
-        }
-
-        return userService.updateUser(request,  userUpdateRequestDto, imagePath);
+        return userService.updateUser(request, userUpdateRequestDto, profileImage);
     }
 
     @PutMapping("/password")

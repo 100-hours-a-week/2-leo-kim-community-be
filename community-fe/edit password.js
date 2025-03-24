@@ -1,5 +1,6 @@
 import { getMe, updateUserPassword } from "./api/users.js";
 import { loadProfileMenu } from "./profileMenu.js";
+import CONFIG from "./config.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
 	// JWT 이상하면 로그인
@@ -27,7 +28,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 		const profileImage = myInfo.data.profileImage;
 		const profilePic = document.createElement("img");
 		profilePic.id = "profilePic";
-		profilePic.src = profileImage ? profileImage : "./profile_img.webp";
+		profilePic.src = profileImage
+			? CONFIG.BACKEND_ROOT_URL + profileImage
+			: "./profile_img.webp";
 		profilePic.style.width = "30px";
 		profilePic.style.height = "30px";
 		profilePic.style.borderRadius = "50%";

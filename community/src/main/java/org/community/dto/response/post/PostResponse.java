@@ -12,7 +12,7 @@ public class PostResponse {
     private final User user;
     private final String title;
     private final String contents;
-    private final String image;
+    private final String postImagePath;
     private final Date regDate;
     private final Integer views;
     private final int likes; // 좋아요 개수 추가
@@ -23,11 +23,11 @@ public class PostResponse {
         this.postId = post.getPostId();
         this.user = User.builder()
                 .nickname(user.getNickname())
-                .profileImage(user.getProfilePic())
+                .profileImagePath(user.getProfileImagePath())
                 .build();
         this.title = post.getTitle();
         this.contents = post.getContents();
-        this.image = post.getImage();
+        this.postImagePath = post.getPostImagePath();
         this.regDate = post.getRegDate();
         this.views = post.getViews();
         this.likes = post.getLikesCnt();
