@@ -112,6 +112,7 @@ implementation 'org.projectlombok:lombok'
 -   `@Transactional`을 필요한 메서드에만 설정하여 최적화
 -   사진 업데이트가 아니라 단순히 내리는 것에 대한 로직처리
 -   JWT accesToken refreshToken 로직 수정
+-   AOP(HandlerMethodArgumentResolver)를 활용하여 중복된 횡단 관심사 처리(UserEntity 조회 후 활용 등)
 
 ## 12. 회고
 
