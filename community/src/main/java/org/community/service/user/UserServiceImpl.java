@@ -1,7 +1,7 @@
 package org.community.service.user;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.community.common.function.CommonFunctions;
 import org.community.common.user.UserResponseMessage;
@@ -29,7 +29,6 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -37,16 +36,15 @@ public class UserServiceImpl implements UserService {
     private final FileUploadService fileUploadService;
     private final CommonFunctions commonFunctions;
 
+    @Transactional
     public ResponseEntity<ApiResponse> signup(UserSignupRequest userSignupDto, MultipartFile profileImage) {
         // 이메일 중복 체크
         // 이메일, 비밀번호 유효성 검사는 FE에서 맡아서 관리하는게 성능적으로 좋을것같습니다.
         commonFunctions.checkDuplicateEmail(userSignupDto.getEmail());
         commonFunctions.checkDuplicateNickname(userSignupDto.getNickname());
 
-        String imagePath = null;
-        if (profileImage != null && !profileImage.isEmpty()) {
-            imagePath = fileUploadService.saveImage(profileImage, true);
-        }
+        // 이미지 경로 잡기
+        String imagePath = commonFunctions.getImagePath(profileImage,true);
 
         // 회원가입 db 저장
         UserEntity savedUser = userSignupDto.toEntity();
@@ -57,12 +55,11 @@ public class UserServiceImpl implements UserService {
         return ApiResponse.response(UserResponseMessage.SIGNUP_SUCCESS);
     }
 
-
     public ResponseEntity<ApiResponse> login(UserLoginRequest userLoginRequestDto) {
         UserEntity user = commonFunctions.getUserByEmail(userLoginRequestDto.getEmail());
 
         // 비밀번호 틀림
-        if (commonFunctions.isSamePassword(userLoginRequestDto.getPassword(), user.getPassword())) {
+        if (!commonFunctions.isSamePassword(userLoginRequestDto.getPassword(), user.getPassword())) {
             return ApiResponse.response(UserResponseMessage.INVALID_PASSWORD);
         }
 
@@ -76,7 +73,7 @@ public class UserServiceImpl implements UserService {
         return ApiResponse.responseWithHeader(UserResponseMessage.LOGIN_SUCCESS, headers);
     }
 
-
+    @Transactional
     public ResponseEntity<ApiResponse> updateUser(HttpServletRequest request, UserUpdateRequest userUpdateRequestDto, MultipartFile profileImage) {
         // 얘네는 영속성 컨텍스트 때문에 어노테이션을 못쓴다.
         UserEntity user = commonFunctions.getUserByToken(request);
@@ -96,7 +93,7 @@ public class UserServiceImpl implements UserService {
         return ApiResponse.response(UserResponseMessage.UPDATE_SUCCESS);
     }
 
-
+    @Transactional
     public ResponseEntity<ApiResponse> updateUserPassword(HttpServletRequest request, UserPasswordRequest userPasswordRequestDto) {
         // 얘네는 영속성 컨텍스트 때문에 어노테이션을 못쓴다.
         UserEntity user = commonFunctions.getUserByToken(request);
@@ -107,6 +104,7 @@ public class UserServiceImpl implements UserService {
         return ApiResponse.response(UserResponseMessage.UPDATE_SUCCESS);
     }
 
+    @Transactional
     public ResponseEntity<ApiResponse> deleteUser(UserEntity user) {
         List<PostEntity> postEntities = postRepository.findAllByUser(user);
 

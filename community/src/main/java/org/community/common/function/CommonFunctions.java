@@ -7,11 +7,13 @@ import org.community.entity.post.PostEntity;
 import org.community.entity.user.UserEntity;
 import org.community.global.CustomException;
 import org.community.respository.user.UserRepository;
+import org.community.service.file.FileUploadService;
 import org.community.util.jwtutil.JwtUtil;
 import org.community.util.jwtutil.TokenInfo;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.Optional;
@@ -22,6 +24,7 @@ public class CommonFunctions {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final FileUploadService fileUploadService;
     private final JwtUtil jwtUtil;
 
     public UserEntity getUserByEmail(String email) {
@@ -82,4 +85,11 @@ public class CommonFunctions {
     }
 
 
+    public String getImagePath(MultipartFile profileImage, boolean isProfileImage) {
+        String imagePath = null;
+        if (profileImage != null && !profileImage.isEmpty()) {
+            imagePath = fileUploadService.saveImage(profileImage, true);
+        }
+        return imagePath;
+    }
 }

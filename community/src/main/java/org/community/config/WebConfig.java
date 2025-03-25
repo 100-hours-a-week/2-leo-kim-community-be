@@ -1,6 +1,7 @@
 package org.community.config;
 
 import lombok.RequiredArgsConstructor;
+import org.community.aspect.CurrentPostWithUserArgumentResolver;
 import org.community.aspect.CurrentUserArgumentResolver;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -13,6 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
     private final CurrentUserArgumentResolver currentUserArgumentResolver;
+    private final CurrentPostWithUserArgumentResolver currentPostArgumentResolver;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -28,5 +30,6 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(currentUserArgumentResolver);
+        resolvers.add(currentPostArgumentResolver);
     }
 }

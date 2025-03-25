@@ -9,7 +9,6 @@ import org.community.entity.user.UserEntity;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 @Getter
 @Setter
@@ -26,7 +25,8 @@ public class PostDetailResponse {
     private Boolean isLiked;
     private List<Comment> commentList;
 
-    public PostDetailResponse(PostEntity postEntity, Long userId){
+    @Builder
+    public PostDetailResponse(PostEntity postEntity, Long myUserId){
         UserEntity user = postEntity.getUser();
         this.author = User.builder()
                 .nickname(user.getNickname())
@@ -39,6 +39,6 @@ public class PostDetailResponse {
         this.likes = postEntity.getLikesCnt();
         this.comments = postEntity.getCommentsCnt();
         this.regDate = postEntity.getRegDate();
-        this.isMyPost = user.getUserId().equals(userId);
+        this.isMyPost = user.getUserId().equals(myUserId);
     }
 }

@@ -23,13 +23,11 @@ export const getPosts = async (page, size) => {
 	return responseData;
 };
 
-export const getPostDetail = async (postIdx) => {
+export const getPostDetail = async (postId) => {
 	const accessToken = sessionStorage.getItem("accessToken");
 	const refreshToken = sessionStorage.getItem("refreshToken");
 
-	Blob;
-
-	const response = await fetch(`${baseURL}/${postIdx}`, {
+	const response = await fetch(`${baseURL}/${postId}`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",

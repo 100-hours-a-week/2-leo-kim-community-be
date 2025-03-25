@@ -2,7 +2,7 @@ package org.community.aspect;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.community.annotation.PostWithUser;
+import org.community.annotation.CurrentPostWithUser;
 import org.community.common.user.UserResponseMessage;
 import org.community.entity.post.PostEntity;
 import org.community.global.CustomException;
@@ -19,12 +19,12 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class PostWithUserArgumentResolver implements HandlerMethodArgumentResolver {
+public class CurrentPostWithUserArgumentResolver implements HandlerMethodArgumentResolver {
     private final PostRepository postRepository;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.hasParameterAnnotation(PostWithUser.class) &&
+        return parameter.hasParameterAnnotation(CurrentPostWithUser.class) &&
                 parameter.getParameterType().equals(PostEntity.class);
     }
 

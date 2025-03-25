@@ -33,6 +33,7 @@ public class UserController {
     public ResponseEntity<ApiResponse> signup(@RequestPart("data") UserSignupRequest request,
                                               @RequestPart(value = "profileImage", required = false) MultipartFile profileImage){
 
+        log.info(request.getPassword());
         return userService.signup(request, profileImage);
     }
 

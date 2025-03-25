@@ -39,21 +39,21 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
     private final FileUploadService fileUploadService;
-    private final CommonFunctions commonFunctions;
     private final CommentService commentService;
     private final LikeService likeService;
-    private final JwtUtil jwtUtil;
+    private final CommonFunctions commonFunctions;
 
+    @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse> getPosts(int page, int size) {
+        // pageable 조건에 맞는 page를 반환
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         Page<PostEntity> pages = postRepository.findAll(pageable);
 
+        // postList로 만들어 responseBody로 생성
         List<PostResponse> postList = pages.getContent().stream()
                 .map(PostResponse::new)
                 .collect(Collectors.toList());
@@ -61,53 +61,55 @@ public class PostServiceImpl implements PostService {
         return ApiResponse.response(UserResponseMessage.POST_FETCH_SUCCESS, postList);
     }
 
-
-    public ResponseEntity<ApiResponse> createPosts(UserEntity user, PostCreateRequest postCreateRequest, @Nullable MultipartFile postImage) {
+    @Transactional
+    public ResponseEntity<ApiResponse> createPosts(UserEntity user, PostCreateRequest postCreateRequest, MultipartFile postImage) {
+        // requestDto로 entity 뼈대 생성
         PostEntity newPost = postCreateRequest.toEntity(user);
 
-        String imagePath = null;
-        if (postImage != null && !postImage.isEmpty()) {
-            imagePath = fileUploadService.saveImage(postImage, false);
-        }
+        // 새 경로 저장
+        String imagePath = commonFunctions.getImagePath(postImage, false);
         newPost.setPostImagePath(imagePath);
         postRepository.save(newPost);
 
         return ApiResponse.response(UserResponseMessage.POST_CREATED);
     }
 
-    public ResponseEntity<ApiResponse> getPostDetail(HttpServletRequest request, Long postId) {
-        PostEntity post = postRepository.findById(postId).orElseThrow(() -> new CustomException(UserResponseMessage.POST_NOT_FOUND));
-        Long userId = commonFunctions.getUserIdFromJwt(request);
-        PostDetailResponse responseBody = new PostDetailResponse(post, userId);
+    // 조회수 증가 로직때문에 transactional 필요
+    @Transactional
+    public ResponseEntity<ApiResponse> getPostDetail(UserEntity user, PostEntity post) {
+        // postEntity와 (내 게시물인지확인용)userEntity로 responseDto 뼈대 생성
+        PostDetailResponse responseBody = PostDetailResponse.builder()
+                .postEntity(post)
+                .myUserId(user.getUserId())
+                .build();
 
-        List<Comment> commentList = commentService.getCommentsByPost(userId, post);
+        // 댓글목록 조회
+        List<Comment> commentList = commentService.getCommentsByPost(user.getUserId(), post);
         responseBody.setCommentList(commentList);
 
-        Boolean isLiked = likeService.getIsLiked(request, post);
+        // 좋아요 여부
+        Boolean isLiked = likeService.getIsLiked(user, post);
         responseBody.setIsLiked(isLiked);
+
+        // 조회수 증가 처리
         post.setViews(post.getViews() + 1);
+
         return ApiResponse.response(UserResponseMessage.POST_FETCH_SUCCESS, responseBody);
     }
 
-    public ResponseEntity<ApiResponse> updatePost(Long postId, PostUpdateRequest postUpdateRequest, String imagePath) {
-
-        PostEntity post = postRepository.findById(postId).orElseThrow(() ->
-                new CustomException(UserResponseMessage.POST_NOT_FOUND)
-        );
-
+    @Transactional
+    public ResponseEntity<ApiResponse> updatePost(Long postId, PostUpdateRequest postUpdateRequest, MultipartFile postImage) {
         // 기존 이미지 파일 삭제
-        String fullOldImagePath = System.getProperty("user.dir") + "/community" + post.getPostImagePath();
-        File oldFile = new File(fullOldImagePath);
+        // 영속성 컨텍스트 이슈 때문에 update는 커스텀 어노테이션을 적용할 수 없다.
+        // -> 트랜잭션 범위를 벗어난 detached postEntity이기 때문에
+        // JPA의 dirty checking으로 update할 수 없음
+        PostEntity post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(UserResponseMessage.POST_NOT_FOUND));
+        File oldFile = commonFunctions.getPostImage(post);
+        fileUploadService.deleteImage(oldFile);
 
-        if (oldFile.exists()) {
-            boolean deleted = oldFile.delete();
-            if (!deleted) {
-                log.warn("기존 이미지 파일 삭제 실패: {}", fullOldImagePath);
-            } else {
-                log.info("기존 이미지 파일 삭제 성공: {}", fullOldImagePath);
-            }
-        }
-
+        // 새로운 데이터 덮어씌우기
+        String imagePath = commonFunctions.getImagePath(postImage,false);
         post.setTitle(postUpdateRequest.getTitle());
         post.setContents(postUpdateRequest.getContents());
         post.setPostImagePath(imagePath);
@@ -115,24 +117,13 @@ public class PostServiceImpl implements PostService {
         return ApiResponse.response(UserResponseMessage.POST_UPDATED);
     }
 
-    /// ////////
-
-    public ResponseEntity<ApiResponse> deletePost(Long postId) {
-        PostEntity post = postRepository.findById(postId).orElseThrow(() -> new CustomException(UserResponseMessage.POST_NOT_FOUND));
-
+    @Transactional
+    public ResponseEntity<ApiResponse> deletePost(PostEntity post) {
         // 기존 이미지 파일 삭제
-        String fullOldImagePath = System.getProperty("user.dir") + "/community" + post.getPostImagePath();
-        File oldFile = new File(fullOldImagePath);
+        File oldFile = commonFunctions.getPostImage(post);
+        fileUploadService.deleteImage(oldFile);
 
-        if (oldFile.exists()) {
-            boolean deleted = oldFile.delete();
-            if (!deleted) {
-                log.warn("기존 이미지 파일 삭제 실패: {}", fullOldImagePath);
-            } else {
-                log.info("기존 이미지 파일 삭제 성공: {}", fullOldImagePath);
-            }
-        }
-
+        // db에 적용
         postRepository.delete(post);
         return ApiResponse.response(UserResponseMessage.POST_DELETED);
     }
