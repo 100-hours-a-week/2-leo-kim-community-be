@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @Transactional
 public interface UserService {
-    ResponseEntity<ApiResponse> signup(UserSignupRequest userSignupDto, String imagePath);
+    ResponseEntity<ApiResponse> signup(UserSignupRequest userSignupDto, MultipartFile profileImage);
     ResponseEntity<ApiResponse> login(UserLoginRequest userLoginRequestDto);
     ResponseEntity<ApiResponse> updateUser(HttpServletRequest request, UserUpdateRequest userUpdateRequestDto, MultipartFile profileImage);
     ResponseEntity<ApiResponse> updateUserPassword(HttpServletRequest request, UserPasswordRequest userPasswordRequestDto);

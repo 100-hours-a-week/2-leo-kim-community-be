@@ -37,11 +37,16 @@ public class UserServiceImpl implements UserService {
     private final FileUploadService fileUploadService;
     private final CommonFunctions commonFunctions;
 
-    public ResponseEntity<ApiResponse> signup(UserSignupRequest userSignupDto, String imagePath) {
+    public ResponseEntity<ApiResponse> signup(UserSignupRequest userSignupDto, MultipartFile profileImage) {
         // 이메일 중복 체크
         // 이메일, 비밀번호 유효성 검사는 FE에서 맡아서 관리하는게 성능적으로 좋을것같습니다.
         commonFunctions.checkDuplicateEmail(userSignupDto.getEmail());
         commonFunctions.checkDuplicateNickname(userSignupDto.getNickname());
+
+        String imagePath = null;
+        if (profileImage != null && !profileImage.isEmpty()) {
+            imagePath = fileUploadService.saveImage(profileImage, true);
+        }
 
         // 회원가입 db 저장
         UserEntity savedUser = userSignupDto.toEntity();

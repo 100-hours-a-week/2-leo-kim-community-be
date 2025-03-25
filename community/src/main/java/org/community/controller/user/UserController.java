@@ -21,8 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
     private final UserService userService;
-    private final FileUploadService fileUploadService;
-
 
     /* 현재 안쓰는 endpoint
     @GetMapping("/{userId}")
@@ -35,11 +33,7 @@ public class UserController {
     public ResponseEntity<ApiResponse> signup(@RequestPart("data") UserSignupRequest request,
                                               @RequestPart(value = "profileImage", required = false) MultipartFile profileImage){
 
-        String imagePath = null;
-        if (profileImage != null && !profileImage.isEmpty()) {
-            imagePath = fileUploadService.saveImage(profileImage, true);
-        }
-        return userService.signup(request, imagePath);
+        return userService.signup(request, profileImage);
     }
 
     @PostMapping
@@ -69,7 +63,6 @@ public class UserController {
 
     @GetMapping("/nickname/{nickname}")
     public ResponseEntity<ApiResponse> isDuplicateNickname(HttpServletRequest request, @PathVariable String nickname){
-        log.info(nickname);
         return userService.isDuplicateNickname(request,nickname);
     }
 }

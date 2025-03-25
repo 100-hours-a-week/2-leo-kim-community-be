@@ -3,9 +3,11 @@ package org.community.controller.post;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.community.annotation.CurrentUser;
 import org.community.dto.request.post.PostCreateRequest;
 import org.community.dto.request.post.PostUpdateRequest;
 import org.community.dto.response.ApiResponse;
+import org.community.entity.user.UserEntity;
 import org.community.service.file.FileUploadService;
 import org.community.service.post.PostService;
 import org.springframework.http.MediaType;
@@ -28,15 +30,12 @@ public class PostController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse> createPosts(HttpServletRequest request
+    public ResponseEntity<ApiResponse> createPosts(@CurrentUser UserEntity user
             ,@RequestPart("data") PostCreateRequest postCreateRequest
             ,@RequestPart(value = "postImage", required = false) MultipartFile postImage){
-        String imagePath = null;
-        if (postImage != null && !postImage.isEmpty()) {
-            imagePath = fileUploadService.saveImage(postImage, false);
-        }
 
-        return postService.createPosts(request,postCreateRequest, imagePath);
+
+        return postService.createPosts(user,postCreateRequest, postImage);
     }
 
     @GetMapping("/{postId}")
