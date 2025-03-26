@@ -151,14 +151,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 		}
 	};
 
-	confirmButton.addEventListener("click", () => {
+	confirmButton.addEventListener("click", async () => {
 		if (confirmButton.disabled) return;
 
 		const requestData = {
 			nickname: nickname.value,
 		};
 
-		updateUser(requestData, uploadedProfileImage);
+		const response = await updateUser(requestData, uploadedProfileImage);
 
 		tostMessage.classList.add("active");
 		setTimeout(() => {

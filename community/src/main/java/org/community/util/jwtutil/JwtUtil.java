@@ -71,7 +71,6 @@ public class JwtUtil {
         String access = Jwts.builder()     // header 자동 포함
                 .claim("email", email)            // 여기부터 payload
                 .claim("userId", userId)
-//                .claim("Role", role)  // Role이 지금은 없다.
                 .expiration(accessExpiration)
                 .notBefore(now)
                 .issuedAt(now)

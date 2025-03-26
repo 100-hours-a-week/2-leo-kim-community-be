@@ -88,7 +88,7 @@ public class CommonFunctions {
     public String getImagePath(MultipartFile profileImage, boolean isProfileImage) {
         String imagePath = null;
         if (profileImage != null && !profileImage.isEmpty()) {
-            imagePath = fileUploadService.saveImage(profileImage, true);
+            imagePath = fileUploadService.saveImage(profileImage, isProfileImage);
         }
         return imagePath;
     }
