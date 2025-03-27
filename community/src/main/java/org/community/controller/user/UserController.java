@@ -2,9 +2,11 @@ package org.community.controller.user;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.community.annotation.CurrentUser;
 import org.community.dto.request.user.*;
 import org.community.dto.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.community.entity.user.UserEntity;
 import org.community.service.file.FileUploadService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
     private final UserService userService;
-    private final FileUploadService fileUploadService;
-
 
     /* 현재 안쓰는 endpoint
     @GetMapping("/{userId}")
@@ -29,20 +29,12 @@ public class UserController {
     }
      */
 
-    @GetMapping
-    public ResponseEntity<ApiResponse> getMe(HttpServletRequest request){
-        return userService.getMe(request);
-    }
-
     @PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse> signup(@RequestPart("data") UserSignupRequest request,
                                               @RequestPart(value = "profileImage", required = false) MultipartFile profileImage){
 
-        String imagePath = null;
-        if (profileImage != null && !profileImage.isEmpty()) {
-            imagePath = fileUploadService.saveImage(profileImage, true);
-        }
-        return userService.signup(request, imagePath);
+        log.info(request.getPassword());
+        return userService.signup(request, profileImage);
     }
 
     @PostMapping
@@ -60,14 +52,18 @@ public class UserController {
         return userService.updateUserPassword(request,userPasswordRequestDto);
     }
 
+    @GetMapping
+    public ResponseEntity<ApiResponse> getMe(@CurrentUser UserEntity user){
+        return userService.getMe(user);
+    }
+
     @DeleteMapping
-    public ResponseEntity<ApiResponse> deleteUser(HttpServletRequest request){
-        return userService.deleteUser(request);
+    public ResponseEntity<ApiResponse> deleteUser(@CurrentUser UserEntity user){
+        return userService.deleteUser(user);
     }
 
     @GetMapping("/nickname/{nickname}")
     public ResponseEntity<ApiResponse> isDuplicateNickname(HttpServletRequest request, @PathVariable String nickname){
-        log.info(nickname);
         return userService.isDuplicateNickname(request,nickname);
     }
 }

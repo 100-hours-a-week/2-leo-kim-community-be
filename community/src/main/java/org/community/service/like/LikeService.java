@@ -22,21 +22,17 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class LikeService {
     private final LikedUserRepository likedUserRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final JwtUtil jwtUtil;
 
-    public Boolean getIsLiked(HttpServletRequest request, PostEntity post) {
-        Long userId = jwtUtil.getUserIdFromJwt(request.getHeader("Authorization"));
-        UserEntity user =userRepository.findById(userId).orElseThrow(() -> new CustomException(UserResponseMessage.USER_NOT_FOUND));
-
+    public Boolean getIsLiked(UserEntity user, PostEntity post) {
         return likedUserRepository.findByUserAndPost(user,post).isPresent();
     }
 
-
+    @Transactional
     public ResponseEntity<ApiResponse> toggleLike(HttpServletRequest request, Long postId) {
         Long userId = jwtUtil.getUserIdFromJwt(request.getHeader("Authorization"));
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new CustomException(UserResponseMessage.USER_NOT_FOUND));

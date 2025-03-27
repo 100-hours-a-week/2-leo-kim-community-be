@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	// JWT 이상하면 로그인
 	const myInfo = await getMe();
+	console.log(myInfo);
 	if (myInfo.message.startsWith("JWT")) {
 		document.location.href = "Log in.html";
 	}

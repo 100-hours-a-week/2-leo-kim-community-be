@@ -1,8 +1,9 @@
 package org.community.service.user;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.community.common.function.CommonFunctions;
 import org.community.common.user.UserResponseMessage;
 import org.community.dto.request.user.*;
 import org.community.dto.response.ApiResponse;
@@ -13,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.community.global.CustomException;
 import org.community.respository.post.PostRepository;
 import org.community.service.file.FileUploadService;
-import org.community.util.jwtutil.JwtUtil;
 import org.community.util.jwtutil.TokenInfo;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -23,77 +23,67 @@ import org.community.respository.user.UserRepository;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final FileUploadService fileUploadService;
-    private final JwtUtil jwtUtil;
+    private final CommonFunctions commonFunctions;
 
-    public ResponseEntity<ApiResponse> signup(UserSignupRequest userSignupDto, String imagePath) {
+    @Transactional
+    public ResponseEntity<ApiResponse> signup(UserSignupRequest userSignupDto, MultipartFile profileImage) {
         // 이메일 중복 체크
         // 이메일, 비밀번호 유효성 검사는 FE에서 맡아서 관리하는게 성능적으로 좋을것같습니다.
-        Optional<UserEntity> userByEmail = userRepository.findByEmail(userSignupDto.getEmail());
-        if (userByEmail.isPresent()) {
-            throw new CustomException(UserResponseMessage.DUPLICATE_EMAIL);
-        }
-        Optional<UserEntity> userByNickname = userRepository.findByNickname(userSignupDto.getNickname());
-        if (userByNickname.isPresent()) {
-            throw new CustomException(UserResponseMessage.DUPLICATE_NICKNAME);
-        }
+        commonFunctions.checkDuplicateEmail(userSignupDto.getEmail());
+        commonFunctions.checkDuplicateNickname(userSignupDto.getNickname());
+
+        // 이미지 경로 잡기
+        String imagePath = commonFunctions.getImagePath(profileImage,true);
 
         // 회원가입 db 저장
-        userSignupDto.setPassword(bCryptPasswordEncoder.encode(userSignupDto.getPassword()));
         UserEntity savedUser = userSignupDto.toEntity();
+        savedUser.setPassword(commonFunctions.encodePassword(savedUser.getPassword()));
         savedUser.setProfileImagePath(imagePath);
         userRepository.save(savedUser);
 
         return ApiResponse.response(UserResponseMessage.SIGNUP_SUCCESS);
     }
 
-
     public ResponseEntity<ApiResponse> login(UserLoginRequest userLoginRequestDto) {
-        UserEntity user = getUserByEmail(userLoginRequestDto.getEmail());
+        UserEntity user = commonFunctions.getUserByEmail(userLoginRequestDto.getEmail());
 
         // 비밀번호 틀림
-        if (!bCryptPasswordEncoder.matches(userLoginRequestDto.getPassword(), user.getPassword())) {
+        if (!commonFunctions.isSamePassword(userLoginRequestDto.getPassword(), user.getPassword())) {
             return ApiResponse.response(UserResponseMessage.INVALID_PASSWORD);
         }
 
         // 헤더에 추가
-        TokenInfo jwt = jwtUtil.createToken(user.getEmail(), user.getUserId());
+        TokenInfo jwt = commonFunctions.createJwt(user.getEmail(), user.getUserId());
         HttpHeaders headers = new HttpHeaders();
-        addHeaders(headers, jwt);
+        commonFunctions.addHeaders(headers, jwt);
 
         // TODO : Redis에 refreshToken 추가 & 검증 및 재발급로직
 
         return ApiResponse.responseWithHeader(UserResponseMessage.LOGIN_SUCCESS, headers);
     }
 
-
-
+    @Transactional
     public ResponseEntity<ApiResponse> updateUser(HttpServletRequest request, UserUpdateRequest userUpdateRequestDto, MultipartFile profileImage) {
-        UserEntity user = getUserByToken(request);
+        // 얘네는 영속성 컨텍스트 때문에 어노테이션을 못쓴다.
+        UserEntity user = commonFunctions.getUserByToken(request);
 
-        // 새 이미지가 없다면 그대로
         String imagePath = user.getProfileImagePath();
-        // 있다면
         if (profileImage != null && !profileImage.isEmpty()) {
             // 업로드된 이미지 저장
             imagePath = fileUploadService.saveImage(profileImage, true);
-
             // 기존 이미지 파일 삭제
-            File oldFile = getProfileImage(user);
+            File oldFile = commonFunctions.getProfileImage(user);
             fileUploadService.deleteImage(oldFile);
         }
 
@@ -103,29 +93,30 @@ public class UserServiceImpl implements UserService {
         return ApiResponse.response(UserResponseMessage.UPDATE_SUCCESS);
     }
 
-
+    @Transactional
     public ResponseEntity<ApiResponse> updateUserPassword(HttpServletRequest request, UserPasswordRequest userPasswordRequestDto) {
-        UserEntity user = getUserByToken(request);
+        // 얘네는 영속성 컨텍스트 때문에 어노테이션을 못쓴다.
+        UserEntity user = commonFunctions.getUserByToken(request);
 
         // 새 비밀번호 수정
-        String encodedPassword = bCryptPasswordEncoder.encode(userPasswordRequestDto.getNewPassword());
+        String encodedPassword = commonFunctions.encodePassword(userPasswordRequestDto.getNewPassword());
         user.setPassword(encodedPassword);
         return ApiResponse.response(UserResponseMessage.UPDATE_SUCCESS);
     }
 
-    public ResponseEntity<ApiResponse> deleteUser(HttpServletRequest request) {
-        UserEntity user = getUserByToken(request);
+    @Transactional
+    public ResponseEntity<ApiResponse> deleteUser(UserEntity user) {
         List<PostEntity> postEntities = postRepository.findAllByUser(user);
 
         // user에 딸린 post들은 cascade로 db에선 자동으로 지워주지만,
         // 파일들은 손수 지워주자.
         postEntities.forEach((postEntity -> {
-            File oldFile = getPostImage(postEntity);
+            File oldFile = commonFunctions.getPostImage(postEntity);
             fileUploadService.deleteImage(oldFile);
         }));
 
         // user 프로필 이미지 삭제
-        File oldFile = getProfileImage(user);
+        File oldFile = commonFunctions.getProfileImage(user);
         fileUploadService.deleteImage(oldFile);
 
         // user db 삭제
@@ -145,19 +136,18 @@ public class UserServiceImpl implements UserService {
     }
      */
 
-    public ResponseEntity<ApiResponse> getMe(HttpServletRequest request) {
-        UserEntity myInfo = getUserByToken(request);
+    public ResponseEntity<ApiResponse> getMe(UserEntity user) {
         UserResponse responseBody = UserResponse.builder()
-                .email(myInfo.getEmail())
-                .nickname(myInfo.getNickname())
-                .profileImage(myInfo.getProfileImagePath())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .profileImage(user.getProfileImagePath())
                 .build();
 
         return ApiResponse.response(UserResponseMessage.USER_FETCH_SUCCESS, responseBody);
     }
 
     public ResponseEntity<ApiResponse> isDuplicateNickname(HttpServletRequest request, String nickname) {
-        Long userId = jwtUtil.getUserIdFromJwt(request.getHeader("Authorization"));
+        Long userId = commonFunctions.getUserIdFromJwt(request);
         Optional<UserEntity> user = userRepository.findByNickname(nickname);
 
         // 닉네임에 해당하는 유저가 없으면 중복 x
@@ -172,32 +162,5 @@ public class UserServiceImpl implements UserService {
 
         // 아니면 중복
         return ApiResponse.response(UserResponseMessage.DUPLICATE_NICKNAME);
-    }
-
-    private UserEntity getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(UserResponseMessage.INVALID_EMAIL));
-    }
-
-    private UserEntity getUserByToken(HttpServletRequest request){
-        Long userId = jwtUtil.getUserIdFromJwt(request.getHeader("Authorization"));
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(UserResponseMessage.USER_NOT_FOUND));
-    }
-
-
-    private void addHeaders(HttpHeaders headers, TokenInfo jwt) {
-        headers.add("Authorization", "Bearer " + jwt.getAccessToken());
-        headers.add("refreshToken", jwt.getRefreshToken());
-    }
-
-    private File getProfileImage(UserEntity user) {
-        String fullOldImagePath = System.getProperty("user.dir") + "/community" + user.getProfileImagePath();
-        return new File(fullOldImagePath);
-    }
-
-    private File getPostImage(PostEntity postEntity) {
-        String fullOldImagePath = System.getProperty("user.dir") + "/community" + postEntity.getPostImagePath();
-        return new File(fullOldImagePath);
     }
 }
