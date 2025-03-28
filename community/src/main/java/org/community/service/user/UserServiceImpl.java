@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
 
         // 닉네임, 프로필 사진 수정
         user.setNickname(userUpdateRequestDto.getNickname());
-        user.setProfileImagePath(imagePath);
+            user.setProfileImagePath(imagePath);
         return ApiResponse.response(UserResponseMessage.UPDATE_SUCCESS);
     }
 

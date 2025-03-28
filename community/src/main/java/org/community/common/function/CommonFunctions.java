@@ -29,7 +29,7 @@ public class CommonFunctions {
 
     public UserEntity getUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(UserResponseMessage.INVALID_EMAIL));
+                .orElseThrow(() -> new CustomException(UserResponseMessage.USER_NOT_FOUND));
     }
 
     public UserEntity getUserByToken(HttpServletRequest request){
