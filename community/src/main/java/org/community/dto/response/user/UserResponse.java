@@ -1,11 +1,13 @@
 package org.community.dto.response.user;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@EqualsAndHashCode
 public class UserResponse {
     private String email;
     private String nickname;

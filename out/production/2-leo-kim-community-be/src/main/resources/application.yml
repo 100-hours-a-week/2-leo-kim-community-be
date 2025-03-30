@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: community-project
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/community?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: ""
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect  # MySQL 8.x 버전
+    hibernate:
+      ddl-auto: update
+    show-sql: true  # 실행되는 SQL 로그 출력
+    properties:
+      hibernate.format_sql: true  # SQL을 보기 좋게 정렬
+    open-in-view: false  # 성능 최적화를 위해 비활성화
+
+server:
+  port: 8080  # 기본 포트
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+jwt:
+  secret:
+    1984cymqo98uxgp03499gp8ahgpozuhozrijgoarwijrgg315h4q6j4earg
+  accesstoken-validity-in-seconds:
+    3600000
+  refreshtoken-validity-in-seconds:
+    86400000
