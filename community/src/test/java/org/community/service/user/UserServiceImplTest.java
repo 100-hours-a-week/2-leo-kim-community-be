@@ -221,51 +221,6 @@ class UserServiceImplTest {
         assertEquals(newImagePath, updateUser.getProfileImagePath());
     }
 
-    @Test
-    @DisplayName("로그인 실패(비밀번호)")
-    void 로그인_실패_비밀번호() {
-        //given
-        UserLoginRequest request = new UserLoginRequest();
-        request.setEmail("correct_email@naver.com");
-        request.setPassword("wrong_password");
-
-        UserEntity user = UserEntity.builder()
-                .email("correct_email@naver.com")
-                .password("encoded_correct_password")
-                .build();
-
-        //stubbing
-        given(commonFunctions.getUserByEmail("correct_email@naver.com")).willReturn(user);
-        given(commonFunctions.isSamePassword("wrong_password", "encoded_correct_password"))
-                .willReturn(false);
-
-        //when
-        ResponseEntity<ApiResponse> response = userService.login(request);
-
-        //then
-        assertEquals(UserResponseMessage.INVALID_PASSWORD.getMessage(), response.getBody().getMessage());
-    }
-
-    @Test
-    @DisplayName("로그인 실패(이메일)")
-    void 로그인_실패_이메일() {
-        //given
-        UserLoginRequest request = new UserLoginRequest();
-        request.setEmail("wrong_email@example.com");
-        request.setPassword("1234");
-
-        //stubbing
-        given(commonFunctions.getUserByEmail("wrong_email@example.com"))
-                .willThrow(new CustomException(UserResponseMessage.USER_NOT_FOUND));
-
-        // when & then
-        CustomException exception = assertThrows(CustomException.class, () -> {
-            userService.login(request);
-        });
-
-        assertEquals(UserResponseMessage.USER_NOT_FOUND.getMessage(), exception.getMessage());
-    }
-
     @ParameterizedTest(name = "{index} {displayName} message={0}")
     @DisplayName("로그인")
     @CsvSource({"correct_email, correct_password, LOGIN_SUCCESS", "wrong_email, any_password, WRONG_EMAIL", "correct_email, wrong_password, WRONG_PASSWORD"})
